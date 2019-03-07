@@ -10,10 +10,10 @@ UofT E-mail Address: sinclair.dong@mail.utoronto.ca
 
 Team Member B
 -------------
-First Name: 
-Last Name:
-Student Number:
-UofT E-mail Address:
+First Name: Ryland
+Last Name: Wang
+Student Number: 1004349797
+UofT E-mail Address: ryland.wang@mail.utoronto.ca
 
 Team Member C (Optional)
 -------------
