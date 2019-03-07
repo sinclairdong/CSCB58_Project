@@ -33,7 +33,7 @@ UofT E-mail Address: carlosyukming.lam@mail.utoronto.ca
 Project Plan
 --------
 
-Project Title: 
+Project Title: BabySkyNet
 
 
 Provide a one paragraph description of your project:
