@@ -1,4 +1,4 @@
-﻿CSCB58 Project Report: Winter 2019
+CSCB58 Project Report: Winter 2019
 
 Team Member A
 -------------
@@ -15,12 +15,12 @@ Last Name: Wang
 Student Number: 1004349797
 UofT E-mail Address: ryland.wang@mail.utoronto.ca
 
-Team Member C (Optional)
+Team Member C 
 -------------
-First Name: Yuk Ming
-Last Name: Lam
-Student Number: 1002329358
-UofT E-mail Address: carlosyukming.lam@mail.utoronto.ca
+First Name: Yu-Ting 
+Last Name: Wang
+Student Number: 1004340331
+UofT E-mail Address: yutingwang.wang@mail.utoronto.ca
 
 Team Member D (Optional)
 -------------
