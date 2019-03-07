@@ -1,0 +1,91 @@
+CSCB58 Project Report: Winter 2019
+
+Team Member A
+-------------
+First Name: Yuesen
+Last Name: Dong
+Student Number: 1002387632
+UofT E-mail Address: sinclair.dong@mail.utoronto.ca
+
+
+Team Member B
+-------------
+First Name: 
+Last Name:
+Student Number:
+UofT E-mail Address:
+
+Team Member C (Optional)
+-------------
+First Name: 
+Last Name:
+Student Number:
+UofT E-mail Address:
+
+Team Member D (Optional)
+-------------
+First Name: 
+Last Name:
+Student Number:
+UofT E-mail Address:
+
+
+Project Plan
+--------
+
+Project Title: 
+
+
+Provide a one paragraph description of your project:
+	A neural network that map input pattarns in to single digit binary number 0-9. 
+	The input pattarn could be switches or camera if we have enough time at the end (high chance we won't).
+
+What is your plan for the first week?
+	Build a single working neuron including testing for firing part. 
+	Test our math in java verilog similator(written by us).
+	Build the back propergational logic module for learning part. 
+
+What is your plan for the second week?
+	Keep testing our single neuron to make sure it performs the way expected.
+	Build the auto learning part and display part of the network.
+		- auto feed switch pattarn and evaluate the result
+		- manual entry mode
+		- have a display showing the performence of the network from (0-A) 
+		  Where 0 is nothing match and A is everything match.
+
+What is your plan for the third week?
+	assamble the network together and testing testing and testing. 
+
+What is your backup plan if things don’t work out as planned?
+
+
+
+Weekly Reports
+--------------
+<In this space, provide a report each week of what worked and what didn't, and what (if any) changes were made to your proposal)>
+
+
+[This is an example of a report where things didn't go so well.]
+Week 1: 
+	We added and tested the sensors and the main FSM. 
+	The distance sensor we had intended to use didn't work as expected (wasn't precise enough at further distances, only seems to work accurately within 5-10cm), so instead we've decided to change the project to use a light sensor instead.
+	Had trouble getting the FSM to work (kept getting stuck in state 101, took longer to debug than expected), so we may not be able to add the high score feature. We have updated that in the project description as an optional feature.
+
+
+
+References
+----------
+<In this space clearly indicate all external sources used in this project. If you used anyone else's code (from previous B58 projects or other sources) clearly indicate what you used and where you found it. Usage of any material not credited in this space will be considered plagiarism. It is absolutely OK and expected to update this section as you progress in the projected.
+
+Make sure to document what you added on top of the existing work, especially if you work with a previous project. What is it that YOU added?>
+
+
+
+Repo & Video
+------------
+<At the end of the project, provide links to your code repository and presentation video (and passwords if not public>
+https://github.com/sinclairdong/CSCB58_Project
+NOTE: the github repo is currently private as school policy against publishing un submitted assignment
+NOTE: Will be public if instrctor gives permission
+
+Video will be uploaded latter
