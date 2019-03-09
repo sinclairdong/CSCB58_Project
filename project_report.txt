@@ -22,7 +22,7 @@ Last Name: Wang
 Student Number: 1004340331
 UofT E-mail Address: yutingwang.wang@mail.utoronto.ca
 
-Team Member D (Optional)
+Team Member D
 -------------
 First Name: Yuk-Ming
 Last Name: Lam
@@ -33,32 +33,32 @@ UofT E-mail Address: carlosyukming.lam@mail.utoronto.ca
 Project Plan
 --------
 
-Project Title: BabySkyNet
+Project Title: BattleCity Tanks
 
 
 Provide a one paragraph description of your project:
-	A neural network that map input pattarns in to single digit binary number 0-9. 
-	The input pattarn could be switches or camera if we have enough time at the end (high chance we won't).
+	A 2 (or multi)-player 2-d tank battle game. The objective is to defeat your opponent by shooting him/her while navigating around the map.
+	Our current idea of the map has a size of 8x8 and will have destructible walls if time permits.
 
-What is your plan for the first week?
-	Build a single working neuron including testing for firing part. 
-	Test our math in java verilog similator(written by us).
-	Build the back propergational logic module for learning part. 
+What is your plan for the first week? 
+	- Implement graphics of the tank and (empty) map
+	- Implement tank movement
+	- Implement keyboard input
 
 What is your plan for the second week?
-	Keep testing our single neuron to make sure it performs the way expected.
-	Build the auto learning part and display part of the network.
-		- auto feed switch pattarn and evaluate the result
-		- manual entry mode
-		- have a display showing the performence of the network from (0-A) 
-		  Where 0 is nothing match and A is everything match.
+	- Add (non-destructible) walls
+	- Implement the firing of projectiles
+	- Projectile collision (with tank/another projectile).
+	Essentially, put the game together with the limited features to test and make sure we are on the right track.
 
 What is your plan for the third week?
-	assamble the network together and testing testing and testing. 
+	Finish up anything we haven't finished in the previous weeks, and make sure the game is running with limited features.
+	If time permits, add destructible terrain and options for more players. 
 
 What is your backup plan if things don’t work out as planned?
-
-
+	We would make do with the game with more limited features. The schedule is made so that we implement basic features first to get at
+	least the base of the game working (e.g. movement in a map with no walls/non-destructible walls, projectile collision with just tank).
+	The details are implemented later.
 
 Weekly Reports
 --------------
@@ -79,7 +79,7 @@ References
 
 Make sure to document what you added on top of the existing work, especially if you work with a previous project. What is it that YOU added?>
 
-
+	The game we are (re)creating can be found: https://oldgameshelf.com/battle-city-98.html
 
 Repo & Video
 ------------
