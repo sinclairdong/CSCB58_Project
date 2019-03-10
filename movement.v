@@ -31,23 +31,55 @@
 */
 
 
+module control(
+    input clk,
+    input resetn, // the input to reset the game
+    input game_state, // 0 if not in game, 1 if in game. 
+    output reg load_game
+    );
+
+    reg [2:0] current_state, next_state;        
+
+    localparam S_PRE_GAME  = 2'b00,
+               S_GAME      = 2'b01,
+               S_POST_GAME = 2'b10;
+
+    always@(*)
+    begin
+        case(current_state)
+            S_PRE_GAME: next_state = game_state ? S_GAME : S_PRE_GAME; // Stay in pre-game state until game starts
+            S_GAME: next_state = game_state ? S_GAME : S_POST_GAME; // Stay in game state until game ends
+            S_POST_GAME: next_state = S_PRE_GAME; // go back to pre-game state and wait for new game to start
+    end
+
+endmodule
+
+
+//register for tank
 module tank(
-    input 
+    output reg [6:0] out_position,
+    input clk,
+    input load_tank,
+    input [6:0] in_position
+    );
+
+    always@(posedge clk)
+    begin
+        out_position <= in_position;
+    end
+
+endmodule    
 
 
 module move_tank(
-    output out_position,
+    output reg [6:0] out_position,
     input clk,
-    input in_position,
+    input [6:0] in_position,
     input move_up,
     input move_down,
     input move_left,
     input move_right,
     );
-    
-    input [6:0] in_position; // current position of tank
-    input move_up, move_down, move_left, move_right; // input keys for movement
-    output [6:0] out_position; // new position of tank
 
     reg [6:0] to_move;
 
@@ -55,20 +87,21 @@ module move_tank(
     begin
         //signal to move up, and currently not in uppermost blocks
         if(move_up && in_position[6:0] >= 6'b001000) begin
-            to_move[6:0] = in_position[6:0] - 6'b001000;
+            to_move[6:0] <= in_position[6:0] - 6'b001000;
         //signal to move down, and currently not in lowermost blocks
         end else if(move_down && in_position[6:0] <= 6'b111000) begin
-            to_move[6:0] = in_position[6:0] + 6'b001000;
+            to_move[6:0] <= in_position[6:0] + 6'b001000;
         //signal to move left, and currently not in leftmost blocks
         end else if(move_left && (in_position[6:0] % 6'b001000) >= 6'b000001) begin
-            to_move[6:0] = in_position[6:0] - 6'b000001;
+            to_move[6:0] <= in_position[6:0] - 6'b000001;
         //signal to move right, and currently not in rightmost blocks
         end else if(move_right && (in_position[6:0] % 6'b001000) <= 6'b000110) begin
-            to_move[6:0] = in_position[6:0] + 6'b000001;
-        end
+            to_move[6:0] <= in_position[6:0] + 6'b000001;
+        end else begin
+            to_move[6:0] <= in_position[6:0];
     end
 
-    assign out_position[6:0] = to_move[6:0]
+    assign out_position[6:0] = to_move[6:0];
 
 endmodule
 
