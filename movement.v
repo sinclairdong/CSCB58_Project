@@ -35,7 +35,10 @@ module control(
     input clk,
     input resetn, // the input to reset the game
     input game_state, // 0 if not in game, 1 if in game. 
-    output reg load_game
+    output reg load_game,
+    
+    input tank_direction, // 
+    input projectile_state, // 1 if ready to fire, 0 if not
     );
 
     reg [2:0] current_state, next_state;        
@@ -51,6 +54,9 @@ module control(
             S_GAME: next_state = game_state ? S_GAME : S_POST_GAME; // Stay in game state until game ends
             S_POST_GAME: next_state = S_PRE_GAME; // go back to pre-game state and wait for new game to start
     end
+            
+            
+    
 
 endmodule
 
