@@ -41,7 +41,7 @@ Provide a one paragraph description of your project:
 	Our current idea of the map has a size of 8x8 and will have destructible walls if time permits.
 
 What is your plan for the first week? 
-	- Implement graphics of the tank and (empty) map
+	- Implement graphics of the tank (4 variations facing different directions) and (empty) map
 	- Implement tank movement
 	- Implement keyboard input
 
@@ -53,7 +53,14 @@ What is your plan for the second week?
 
 What is your plan for the third week?
 	Finish up anything we haven't finished in the previous weeks, and make sure the game is running with limited features.
-	If time permits, add destructible terrain and options for more players. 
+	If time permits, consider below: 
+	
+	Addtional features of consideration:
+		-destructible terrain
+		-more players
+		-menu
+		-sound
+		-items
 
 What is your backup plan if things don’t work out as planned?
 	We would make do with the game with more limited features. The schedule is made so that we implement basic features first to get at
