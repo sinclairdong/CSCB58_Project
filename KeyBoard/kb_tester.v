@@ -3,7 +3,7 @@ module kb_tester
     (
         output [6:0] HEX0,
         output [6:0] HEX1,
-        output [0:0] LEDR,
+        output [17:0] LEDR,
         output [0:0] LEDG,
         input CLOCK_50,
         input PS2_KBCLK,
@@ -26,24 +26,20 @@ module kb_tester
             .letter_case_out(kb_upper_case_flag)            
         );
     
-    assign LEDR[0] = kb_upper_case_flag;
+    assign LEDR[17] = kb_upper_case_flag;
     assign LEDG[0] = kb_scan_ready;
-    
-    translate_to_ASCII t0
-        (
-            .IN(kb_scan_code),
-            .OUT(ascii_code)
-        );
+	 assign LEDR[7:0] = kb_scan_code;
+	 
     
     hex_display h0
         (
-            .IN(ascii_code[3:0]),
+            .IN(kb_scan_code[3:0]),
             .OUT(HEX0)
         );
     
     hex_display h1
         (
-            .IN(ascii_code[7:4]),
+            .IN(kb_scan_code[7:4]),
             .OUT(HEX1)
         );
 endmodule
