@@ -36,11 +36,11 @@ module control(
     input resetn, // the input to reset the game
     input game_state, // 0 if not in game, 1 if in game. 
     output reg load_game,
-    
-    input tank_direction, // 
-    input projectile_state, // 1 if ready to fire, 0 if not
+
+    input game_over;
     );
 
+    //________________________GAME STATE________________________
     reg [2:0] current_state, next_state;        
 
     localparam S_PRE_GAME  = 2'b00,
@@ -50,10 +50,23 @@ module control(
     always@(*)
     begin
         case(current_state)
+        
             S_PRE_GAME: next_state = game_state ? S_GAME : S_PRE_GAME; // Stay in pre-game state until game starts
             S_GAME: next_state = game_state ? S_GAME : S_POST_GAME; // Stay in game state until game ends
             S_POST_GAME: next_state = S_PRE_GAME; // go back to pre-game state and wait for new game to start
     end
+
+    // reset to pre game state if either game over or reset pressed
+    always@(*)
+    begin
+        if (game_over || resetn)
+            next_state = S_PRE_GAME;
+    end
+
+
+    //_______________________TANK STATE_______________________
+
+
             
             
     
@@ -91,6 +104,7 @@ module move_tank(
 
     always@(posedge clk)
     begin
+    
         //signal to move up, and currently not in uppermost blocks
         if(move_up && in_position[6:0] >= 6'b001000) begin
             to_move[6:0] <= in_position[6:0] - 6'b001000;
