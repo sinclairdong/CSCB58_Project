@@ -3,9 +3,11 @@
 * tank1 address: 0001
 * tank1 direction: 0010
 * tank1 projectile address: 0011
-* tank2 address: 0100
-* tank2 direction: 0101
-* tank2 projectile address: 0110
+* tank1 projectile direction: 0100
+* tank2 address: 0101
+* tank2 direction: 0110
+* tank2 projectile address: 0111
+* tank2 projectile direction: 1000
 *
 * Tank Address is 8 bits binary; first 4 bits the column, last 4 bits the row.
 *
@@ -36,38 +38,52 @@ module storage(
 
     //tanks address registers
     reg [7:0] tank_1, tank_2;
+
     //tank directions registers
     reg [7:0] tank_1_dir, tank_2_dir;
+
     //projectile address registers
     reg [7:0] tank_1_proj, tank_2_proj;
 
-    //alu input mux
-    reg [7:0] target_register;
+    //projectile direction registers
+    reg [7:0] tank_1_proj_dir, tank_2_proj_dir;
+
+    //alu input muxes
+    reg [7:0] target_address, target_direction;
+
     //alu output
     reg [7:0] reg_out;
 
-    //ALU multiplexer
+    //ALU multiplexers
     always@(*)
     begin
         case(mode[3:0])
-            4'b0001: target_register = tank_1;
-            4'b0010: target_register = tank_1_dir;
-            4'b0011: target_register = tank_1_proj;
-            4'b0100: target_register = tank_2;
-            4'b0101: target_register = tank_2_dir;
-            4'b0110: target_register = tank_2_proj;
-        endcase
+            4'b0001:
+                target_address = tank_1;
+                target_direction = tank_1_dir;
+            4'b0011:
+                target_address = tank_1_proj;
+                target_direction = tank_1_proj_dir;
+            4'b0101:
+                target_address = tank_2;
+                target_direction = tank_2_dir;
+            4'b0111:
+                target_address = tank_2_proj;
+                target_direction = tank_2_proj_dir;
     end
+    
 
     // Registers for tanks, and projectiles, and data for walls from RAM, depending on mode.
     always@(posedge clk) begin
         if(reset) begin
-            tank_1 <= 8'b001001; //initial position of tank_1 top left corner
-            tank_2 <= 8'b110110; //initial position of tank_2 bottom right corner
+            tank_1 <= 8'b00000000; //initial position of tank_1 top left corner
+            tank_2 <= 8'b11111111; //initial position of tank_2 bottom right corner
             tank_1_dir <= 8'b00000001; // initial direction of tank_1 points down
             tank_2_dir <= 8'b00000000; // initial direction of tank_2 points up
-            tank_1_proj <= 8'b001001; //projectile stays in tank until fired.
-            tank_2_proj <= 8'b110110;
+            tank_1_proj <= 8'00000000; //projectile stays in tank until fired.
+            tank_1_proj_dir <= 8'00000001; //initial projectile direction same as tank
+            tank_2_proj <= 8'11111111;
+            tank_2_proj_dir <= 8'b00000000;
         end
         else if(mode[3:0] == 4'b0000) begin //if trying to write to ram
             if(wren)begin
