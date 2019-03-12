@@ -18,7 +18,7 @@ module kb_tester
     keyboard k0
         (
             .clk(CLOCK_50),
-            .reset(KEY[0]),
+            .reset(~KEY[0]),
             .ps2d(PS2_KBDAT),
             .ps2c(PS2_KBCLK),
             .scan_code(kb_scan_code),
