@@ -17,7 +17,9 @@
 *
 * Active high reset
 *
-*  
+* Walls:
+*     no wall: 00000000
+*     indestructible wall: 00000001
 */
 module storage(
     output reg [7:0] q,
@@ -57,7 +59,7 @@ module storage(
         endcase
     end
 
-
+    // Registers for tanks, and projectiles, and data for walls from RAM, depending on mode.
     always@(posedge clk) begin
         if(reset) begin
             tank_1 <= 8'b001001; //initial position of tank_1 top left corner
@@ -69,51 +71,27 @@ module storage(
         end
         else if(mode[3:0] == 4'b0000) begin //if trying to write to ram
             if(wren)begin
-                board_state(address[7:0], clk, data[7:0], wren, reg_out[7:0]);
+                board_state(address[7:0], clk, data[7:0], wren, reg_out[7:0]); //set value of wall with inputs address(of wall) and data(type of wall)
             end
         end
         else begin //if trying to write to some specific register that is not ram
             if(wren) begin
-                move_tank(reg_out[7:0], clk, address[7:0], 
+                //take address of targeted object and use ALU to calculate new position given data (direction to move)
+                move_tank(reg_out[7:0], clk, address[7:0], data[7:0]);
             end
         end
     end
 
-    tank tank_1(
-        .out_position(q[7:0]),
-        .clk(clk),
-        .load_tank(wren),
-        .in_position(address[7:0])
-        );
-
-    tank tank_2(
-        .out_position(q[7:0]),
-        .clk(clk),
-        .load_tank(wren),
-        .in_position(address[7:0])
-        );
-
+    // Output result register
     always@(posedge clk)
     begin
-        if(wren) begin
-
+        if(reset) begin
+            q <= 8'b0;
         end
-    end
-endmodule
-
-
-//register for tank
-module tank(
-    output reg [7:0] out_position,
-    input clk,
-    input load_tank,
-    input [7:0] in_position
-    );
-
-    always@(posedge clk)
-    begin
-        if(load_tank) begin
-            out_position[7:0] <= in_position[7:0];
+        else begin
+            if(load_out)begin
+                q <= reg_out[7:0];
+            end
         end
     end
 endmodule
@@ -123,33 +101,30 @@ module move_tank(
     output reg [7:0] out_position,
     input clk,
     input [7:0] in_position,
-    input move_up,
-    input move_down,
-    input move_left,
-    input move_right,
+    input [7:0] move_dir
     );
 
-    reg [6:0] to_move;
+    reg [7:0] to_move;
 
     always@(posedge clk)
     begin
     
         //signal to move up, and currently not in uppermost blocks
-        if(move_up && in_position[6:0] >= 6'b001000) begin
-            to_move[6:0] <= in_position[6:0] - 6'b001000;
+        if(move_dir == 8'b00000000 && in_position[7:0] >= 8'b00010000) begin
+            to_move[7:0] <= in_position[7:0] - 8'b00010000;
         //signal to move down, and currently not in lowermost blocks
-        end else if(move_down && in_position[6:0] <= 6'b111000) begin
-            to_move[6:0] <= in_position[6:0] + 6'b001000;
+        end else if(move_dir == 8'b00000001 && in_position[7:0] <= 8'11110000) begin
+            to_move[7:0] <= in_position[7:0] + 8'b00010000;
         //signal to move left, and currently not in leftmost blocks
-        end else if(move_left && (in_position[6:0] % 6'b001000) >= 6'b000001) begin
-            to_move[6:0] <= in_position[6:0] - 6'b000001;
+        end else if(move_dir == 8'b00000011 && (in_position[7:0] % 8'b00010000) >= 8'b00000001) begin
+            to_move[7:0] <= in_position[7:0] - 8'b00000001;
         //signal to move right, and currently not in rightmost blocks
-        end else if(move_right && (in_position[6:0] % 6'b001000) <= 6'b000110) begin
-            to_move[6:0] <= in_position[6:0] + 6'b000001;
+        end else if(move_dir == 8'b00000111 && (in_position[7:0] % 8'b00010000) <= 8'b00001110) begin
+            to_move[7:0] <= in_position[7:0] + 8'b00000001;
         end else begin
-            to_move[6:0] <= in_position[6:0];
+            to_move[7:0] <= in_position[7:0];
     end
 
-    assign out_position[6:0] = to_move[6:0];
+    assign out_position[7:0] = to_move[7:0];
 
 endmodule
