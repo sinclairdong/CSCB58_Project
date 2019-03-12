@@ -9,7 +9,7 @@ module main
         VGA_SYNC_N,
         VGA_R,
         VGA_G,
-        VGA_B,                     
+        VGA_B,                     //
     );
     input            CLOCK_50;                //    50 MHz
     input   [3:0]   KEY;               // for start and reset
