@@ -57,10 +57,13 @@ module control(
     end
 
     // reset to pre game state if either game over or reset pressed
+    // otherwise move to next state
     always@(*)
     begin
         if (game_over || resetn)
-            next_state = S_PRE_GAME;
+            currrent_state <= S_PRE_GAME;
+        else
+            current_state <= next_state;
     end
 
 
