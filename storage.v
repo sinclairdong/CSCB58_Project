@@ -31,7 +31,7 @@ module storage(
     input wren,
     input load_out,
     input [7:0] address,
-    input [7:0] data
+    input [7:0] data  // tank movement direction
     );
 
     
@@ -40,7 +40,7 @@ module storage(
     reg [7:0] tank_1, tank_2;
 
     //tank directions registers
-    reg [7:0] tank_1_dir, tank_2_dir;
+    reg [7:0] tank_1_dir, tank_2_dir; 
 
     //projectile address registers
     reg [7:0] tank_1_proj, tank_2_proj;
@@ -52,28 +52,32 @@ module storage(
     reg [7:0] target_address, target_direction;  //for tank. Address refers to position
 
     //alu output
-    reg [7:0] reg_out;
+    reg [7:0] reg_out, updated_pos, updated_dir;
 
     //ALU multiplexers
     always@(*)
     begin
         // update position of corresponding tank or projectile
-        // update pointer registers as well
+        // along with pointers
         case(mode[3:0])
             4'b0001:
-                tank1 <= q;
+                //updated position and direction
+                tank1 <= updated_pos;
+                tank1_dir <= updated_dir
+                //update pointers
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
             4'b0011:
-                tank_1_proj <= q;
+                //tank_1_proj <= q;
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
             4'b0101:
-                tank2 <= q;
+                tank2 <= updated_pos;
+                tank_2_dir <= updated_dir;
                 target_address <= tank_2;
                 target_direction <= tank_2_dir;
             4'b0111:
-                tank_2_proj <= q;
+                //tank_2_proj <= q;
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
     end
@@ -99,7 +103,7 @@ module storage(
         else begin //if trying to write to some specific register that is not ram
             if(wren) begin
                 //take address of targeted object and use ALU to calculate new position given data (direction to move)
-                move_tank(reg_out[7:0], clk, target_address[7:0], data[7:0]);
+                move_tank(updated_pos[7:0], updated_dir[7:0], clk, target_address[7:0], data[7:0]);
             end
         end
     end
@@ -121,6 +125,7 @@ endmodule
 
 module move_tank(
     output reg [7:0] out_position,
+    output reg [7:0] out_dir,
     input clk,
     input [7:0] in_position,
     input [7:0] move_dir
@@ -146,7 +151,10 @@ module move_tank(
         end else begin
             to_move[7:0] <= in_position[7:0];
     end
-
+    
+    // update new position
     assign out_position[7:0] = to_move[7:0];
+    // maintain tank's facing direction as input movement direction
+    assign out_dir[7:0] = move_dir[7:0];
 
 endmodule
