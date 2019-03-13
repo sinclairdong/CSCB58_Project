@@ -1,0 +1,12 @@
+up: 75*
+down: 72*
+left: 6b*
+right: 74*
+keypad 0: 70  *
+w: 1d
+s: 1b
+a: 1c
+d: 23
+space: 29
+r: 2d
+p: 4d
