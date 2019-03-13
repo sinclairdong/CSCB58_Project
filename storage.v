@@ -49,7 +49,7 @@ module storage(
     reg [7:0] tank_1_proj_dir, tank_2_proj_dir;
 
     //alu input muxes
-    reg [7:0] target_address, target_direction;
+    reg [7:0] target_address, target_direction;  //for tank. Address refers to position
 
     //alu output
     reg [7:0] reg_out;
@@ -57,19 +57,25 @@ module storage(
     //ALU multiplexers
     always@(*)
     begin
+        // update position of corresponding tank or projectile
+        // update pointer registers as well
         case(mode[3:0])
             4'b0001:
-                target_address = tank_1;
-                target_direction = tank_1_dir;
+                tank1 <= q;
+                target_address <= tank_1;
+                target_direction <= tank_1_dir;
             4'b0011:
-                target_address = tank_1_proj;
-                target_direction = tank_1_proj_dir;
+                tank_1_proj <= q;
+                target_address <= tank_1_proj;
+                target_direction <= tank_1_proj_dir;
             4'b0101:
-                target_address = tank_2;
-                target_direction = tank_2_dir;
+                tank2 <= q;
+                target_address <= tank_2;
+                target_direction <= tank_2_dir;
             4'b0111:
-                target_address = tank_2_proj;
-                target_direction = tank_2_proj_dir;
+                tank_2_proj <= q;
+                target_address <= tank_2_proj;
+                target_direction <= tank_2_proj_dir;
     end
     
 
@@ -93,7 +99,7 @@ module storage(
         else begin //if trying to write to some specific register that is not ram
             if(wren) begin
                 //take address of targeted object and use ALU to calculate new position given data (direction to move)
-                move_tank(reg_out[7:0], clk, address[7:0], data[7:0]);
+                move_tank(reg_out[7:0], clk, target_address[7:0], data[7:0]);
             end
         end
     end
