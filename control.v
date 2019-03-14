@@ -145,19 +145,6 @@ module control(
 			8'b11111111: resetn = 1'b1// reset r
 			//8'b11111110:   // pause
 
-
-
-    output reg [7:0] q,
-    input clk,
-    input reset,
-    input [3:0] mode,
-    input wren,
-    input load_out,
-    input [7:0] address,
-    input [7:0] data  // tank movement direction
-    );
-
-
 endmodule
 
 
