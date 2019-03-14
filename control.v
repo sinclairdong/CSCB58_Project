@@ -82,7 +82,7 @@ module control(
                 tank_move_dir = 8'b00000000;
                 end
 
-		    8'b00000111: 
+		8'b00000111: 
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000001;
@@ -94,7 +94,7 @@ module control(
                 tank_move_dir = 8'b00000011;
                 end    // left  p2  arrow
 
-			8'b00000001:
+	    8'b00000001:
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000111;
@@ -112,22 +112,25 @@ module control(
 
             /*____________Tank 1 movement________________*/
 
-			8'b00100000: 
+	8'b00100000: 
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000000;
                 end // up    p1  w
-			8'b01110000:
+		
+	8'b01110000:
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000001;
                 end   // down  p1  s
-			8'b01000000: 
+		
+	8'b01000000: 
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000011;
                 end   // left  p1  a
-			8'b00010000: 
+		
+	8'b00010000: 
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000111;
@@ -142,8 +145,8 @@ module control(
                 end    // left  p2  arrow; // fire  p1  space
                 */
 
-			8'b11111111: resetn = 1'b1// reset r
-			//8'b11111110:   // pause
+	8'b11111111: resetn = 1'b1// reset r
+	//8'b11111110:   // pause
 
 endmodule
 
