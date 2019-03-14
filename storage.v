@@ -30,13 +30,12 @@ module storage(
     input reset,
     input [3:0] mode,
     input wren,
-//    input load_out,
+    input load_out,
     input [7:0] address,
     input [7:0] data  // tank movement direction
     );
 
     
-
     //tanks address registers
     reg [7:0] tank_1, tank_2;
 
@@ -52,8 +51,8 @@ module storage(
     //alu input muxes
     reg [7:0] target_address, target_direction;  //for tank. Address refers to position
 
-    //alu output
-    reg [7:0] updated_pos, updated_dir;
+	 //alu output
+	 reg [7:0] alu_out;
 
     //ALU multiplexers
     always@(*)
@@ -61,32 +60,27 @@ module storage(
         // update position of corresponding tank or projectile
         // along with pointers
         case(mode[3:0])
-            4'b0001:
+            4'b0001: begin
                 //update pointers
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
-                //updated position and direction
-                tank_1 <= updated_pos;
-                tank_1_dir <= updated_dir
-            4'b0011:
+					 end
+            4'b0011: begin
                 //tank_1_proj <= q;
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
-                tank_1_proj <= updated_pos;
-                tank_1_proj_dir <= updated_dir;
-            4'b0101:
+					 end
+            4'b0101: begin
                 target_address <= tank_2;
                 target_direction <= tank_2_dir;
-                tank_2 <= updated_pos;
-                tank_2_dir <= updated_dir;
-            4'b0111:
+					 end
+            4'b0111: begin
                 //tank_2_proj <= q;
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
-                tank_2_proj <= updated_pos;
-                tank_2_proj_dir <= updated_dir;
+					 end
+			endcase
     end
-    
 
     // Registers for tanks, and projectiles, and data for walls from RAM, depending on mode.
     always@(posedge clk) begin
@@ -95,38 +89,84 @@ module storage(
             tank_2 <= 8'b11111111; //initial position of tank_2 bottom right corner
             tank_1_dir <= 8'b00000001; // initial direction of tank_1 points down
             tank_2_dir <= 8'b00000000; // initial direction of tank_2 points up
-            tank_1_proj <= 8'00000000; //projectile stays in tank until fired.
-            tank_1_proj_dir <= 8'00000001; //initial projectile direction same as tank
-            tank_2_proj <= 8'11111111;
+            tank_1_proj <= 8'b00000000; //projectile stays in tank until fired.
+            tank_1_proj_dir <= 8'b00000001; //initial projectile direction same as tank
+            tank_2_proj <= 8'b11111111;
             tank_2_proj_dir <= 8'b00000000;
         end
-        else if(mode[3:0] == 4'b0000) begin //if trying to write to ram
+		  
+        else begin
+		      case(mode[3:0])
+			       4'b0000: begin//if trying to write to ram
+//                    updated_pos[7:0] <= alu_out[7:0];
+//				        updated_dir[7:0] <= data[7:0];
+				        end
+					 4'b0001: begin //tank 1
+                //updated position and direction
+                    tank_1[7:0] <= updated_pos[7:0];
+                    tank_1_dir[7:0] <= updated_dir[7:0];
+						  end
+					 4'b0011: begin //tank 1 proj
+                    tank_1_proj[7:0] <= updated_pos[7:0];
+                    tank_1_proj_dir[7:0] <= updated_dir[7:0];
+						  end
+					 4'b0101: begin //tank 2
+                    tank_2[7:0] <= updated_pos[7:0];
+                    tank_2_dir[7:0] <= updated_dir[7:0];
+						  end
+					 4'b0111: begin //tank 2 proj
+                    tank_2_proj[7:0] <= updated_pos[7:0];
+                    tank_2_proj_dir[7:0] <= updated_dir[7:0];
+						  end
+				endcase
+        end
+    end
+	 
+	 // ALU
+	 always@(*) begin
+	     if(mode[3:0] == 4'b0000) begin //if trying to write to ram
             if(wren)begin
-                board_state(address[7:0], clk, data[7:0], wren, updated_position[7:0]); //set value of wall with inputs address(of wall) and data(type of wall)
+				    //set value of wall with inputs address(of wall) and data(type of wall)
+ //               board_state walls(address[7:0], clk, data[7:0], wren, alu_out[7:0]); 
             end
         end
         else begin //if trying to write to some specific register that is not ram
             if(wren) begin
                 //take address of targeted object and use ALU to calculate new position given data (direction to move)
-                move_tank(updated_pos[7:0], updated_dir[7:0], clk, target_address[7:0], data[7:0]);
+                //move_tank m(updated_p[7:0], updated_d[7:0], clk, target_address[7:0], data[7:0];
+					 //signal to move up, and currently not in uppermost blocks
+		          if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
+                    alu_out[7:0] <= target_address[7:0] - 8'b00010000;
+                //signal to move down, and currently not in lowermost blocks
+                end else if((data[7:0] == 8'b00000001) && (target_address[7:0] <= 8'b11110000)) begin
+                    alu_out[7:0] <= target_address[7:0] + 8'b00010000;
+                //signal to move left, and currently not in leftmost blocks
+                end else if((data[7:0] == 8'b00000011) && ((target_address[7:0] % 8'b00010000) >= 8'b00000001)) begin
+                    alu_out[7:0] <= target_address[7:0] - 8'b00000001;
+                //signal to move right, and currently not in rightmost blocks
+                end else if((data[7:0] == 8'b00000111) && ((target_address[7:0] % 8'b00010000) <= 8'b00001110)) begin
+                    alu_out[7:0] <= target_address[7:0] + 8'b00000001;
+                end else begin
+                    alu_out[7:0] <= target_address[7:0];
+		          end
             end
         end
     end
-
-    // Output result register
-//    always@(posedge clk)
-//    begin
-//        if(reset) begin
-//            updated_pos <= 8'b0;
-//            updated_dir <= 8'b0;
-//        end
-//        else begin
-//            if(load_out)begin
-//                updated_pos <= 8'b0;
-//               updated_dir <= 8'b0;
-//            end
-//        end
-//    end
+	 
+    //Output result register
+    always@(posedge clk)
+    begin
+        if(reset) begin
+            updated_pos <= 8'b0;
+            updated_dir <= 8'b0;
+        end
+        else begin
+            if(load_out)begin
+               updated_pos <= alu_out[7:0];
+               updated_dir <= data[7:0];
+            end
+        end
+    end
 endmodule
 
 
@@ -138,30 +178,27 @@ module move_tank(
     input [7:0] move_dir
     );
 
-    reg [7:0] to_move;
+
 
     always@(posedge clk)
     begin
     
         //signal to move up, and currently not in uppermost blocks
-        if(move_dir == 8'b00000000 && in_position[7:0] >= 8'b00010000) begin
-            to_move[7:0] <= in_position[7:0] - 8'b00010000;
+        if((move_dir == 8'b00000000) && (in_position[7:0] >= 8'b00010000)) begin
+            out_position[7:0] <= in_position[7:0] - 8'b00010000;
         //signal to move down, and currently not in lowermost blocks
-        end else if(move_dir == 8'b00000001 && in_position[7:0] <= 8'11110000) begin
-            to_move[7:0] <= in_position[7:0] + 8'b00010000;
+        end else if((move_dir == 8'b00000001) && (in_position[7:0] <= 8'b11110000)) begin
+            out_position[7:0] <= in_position[7:0] + 8'b00010000;
         //signal to move left, and currently not in leftmost blocks
-        end else if(move_dir == 8'b00000011 && (in_position[7:0] % 8'b00010000) >= 8'b00000001) begin
-            to_move[7:0] <= in_position[7:0] - 8'b00000001;
+        end else if((move_dir == 8'b00000011) && ((in_position[7:0] % 8'b00010000) >= 8'b00000001)) begin
+            out_position[7:0] <= in_position[7:0] - 8'b00000001;
         //signal to move right, and currently not in rightmost blocks
-        end else if(move_dir == 8'b00000111 && (in_position[7:0] % 8'b00010000) <= 8'b00001110) begin
-            to_move[7:0] <= in_position[7:0] + 8'b00000001;
+        end else if((move_dir == 8'b00000111) && ((in_position[7:0] % 8'b00010000) <= 8'b00001110)) begin
+            out_position[7:0] <= in_position[7:0] + 8'b00000001;
         end else begin
-            to_move[7:0] <= in_position[7:0];
+            out_position[7:0] <= in_position[7:0];
+		  end
     end
     
-    // update new position
-    assign out_position[7:0] = to_move[7:0];
-    // maintain tank's facing direction as input movement direction
-    assign out_dir[7:0] = move_dir[7:0];
 
 endmodule
