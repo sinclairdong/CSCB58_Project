@@ -24,12 +24,13 @@
 *     indestructible wall: 00000001
 */
 module storage(
-    output reg [7:0] q,
+    output reg [7:0] updated_pos,
+    output reg [7:0] updated_dir,
     input clk,
     input reset,
     input [3:0] mode,
     input wren,
-    input load_out,
+//    input load_out,
     input [7:0] address,
     input [7:0] data  // tank movement direction
     );
@@ -52,7 +53,7 @@ module storage(
     reg [7:0] target_address, target_direction;  //for tank. Address refers to position
 
     //alu output
-    reg [7:0] reg_out, updated_pos, updated_dir;
+    reg [7:0] updated_pos, updated_dir;
 
     //ALU multiplexers
     always@(*)
@@ -61,25 +62,29 @@ module storage(
         // along with pointers
         case(mode[3:0])
             4'b0001:
-                //updated position and direction
-                tank1 <= updated_pos;
-                tank1_dir <= updated_dir
                 //update pointers
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
+                //updated position and direction
+                tank_1 <= updated_pos;
+                tank_1_dir <= updated_dir
             4'b0011:
                 //tank_1_proj <= q;
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
+                tank_1_proj <= updated_pos;
+                tank_1_proj_dir <= updated_dir;
             4'b0101:
-                tank2 <= updated_pos;
-                tank_2_dir <= updated_dir;
                 target_address <= tank_2;
                 target_direction <= tank_2_dir;
+                tank_2 <= updated_pos;
+                tank_2_dir <= updated_dir;
             4'b0111:
                 //tank_2_proj <= q;
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
+                tank_2_proj <= updated_pos;
+                tank_2_proj_dir <= updated_dir;
     end
     
 
@@ -97,7 +102,7 @@ module storage(
         end
         else if(mode[3:0] == 4'b0000) begin //if trying to write to ram
             if(wren)begin
-                board_state(address[7:0], clk, data[7:0], wren, reg_out[7:0]); //set value of wall with inputs address(of wall) and data(type of wall)
+                board_state(address[7:0], clk, data[7:0], wren, updated_position[7:0]); //set value of wall with inputs address(of wall) and data(type of wall)
             end
         end
         else begin //if trying to write to some specific register that is not ram
@@ -109,17 +114,19 @@ module storage(
     end
 
     // Output result register
-    always@(posedge clk)
-    begin
-        if(reset) begin
-            q <= 8'b0;
-        end
-        else begin
-            if(load_out)begin
-                q <= reg_out[7:0];
-            end
-        end
-    end
+//    always@(posedge clk)
+//    begin
+//        if(reset) begin
+//            updated_pos <= 8'b0;
+//            updated_dir <= 8'b0;
+//        end
+//        else begin
+//            if(load_out)begin
+//                updated_pos <= 8'b0;
+//               updated_dir <= 8'b0;
+//            end
+//        end
+//    end
 endmodule
 
 
