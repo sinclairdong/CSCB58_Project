@@ -71,6 +71,15 @@ Weekly Reports
 --------------
 <In this space, provide a report each week of what worked and what didn't, and what (if any) changes were made to your proposal)>
 
+WEEK 1:
+
+Completed FSM for game state stransition and tank movements, as well as keyboard mapping and storage containing registers for all relevant game data. 
+
+Display and graphics is work in progress.  <--- This is TOP priority for next week
+
+Have not had the opportunity for any testing yet.
+
+
 
 [This is an example of a report where things didn't go so well.]
 Week 1: 
