@@ -132,10 +132,8 @@ module storage(
         end
         else begin //if trying to write to some specific register that is not ram
             if(wren) begin
-                //take address of targeted object and use ALU to calculate new position given data (direction to move)
-                //move_tank m(updated_p[7:0], updated_d[7:0], clk, target_address[7:0], data[7:0];
-					 //signal to move up, and currently not in uppermost blocks
-		          if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
+		//signal to move up, and currently not in uppermost blocks
+		if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
                     alu_out[7:0] <= target_address[7:0] - 8'b00010000;
                 //signal to move down, and currently not in lowermost blocks
                 end else if((data[7:0] == 8'b00000001) && (target_address[7:0] <= 8'b11110000)) begin
