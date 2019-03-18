@@ -1,4 +1,4 @@
-module main
+module top_level_module
     (
         CLOCK_50,                       
         KEY,
@@ -22,8 +22,55 @@ module main
     output    [9:0]    VGA_R;                   //    VGA Red[9:0]
     output    [9:0]    VGA_G;                     //    VGA Green[9:0]
     output    [9:0]    VGA_B;                   //    VGA Blue[9:0]
-   
-    wire reset;
+
+    
+    wire instruction;
+    
+    //_______INSTANTIATE KEYBOARD INPUT_________
+    input i0
+    (
+        .instruction(instruction),
+        .clk(CLOCK_50),
+        .kbclk, //?
+        .kbdat, //?
+        .reset(KEY[0])
+    );
+     
+    wire reg [7:0]updated_pos;
+    wire reg [7:0]updated_dir;
+    wire [7:0] mode;
+    wire [7:0] data;
+
+    
+    //_______INSTANTIATE STORAGE AKA DATAPATH___________
+    storage S0
+    (
+        .updated_pos(updated_pos),
+        .updated_dir(updated_dir),
+        .clk(CLOCK_50),
+        .reset(KEY[0]),
+        .mode(mode),
+        .wren,
+       // .load_out,
+       // .address,
+        .data(data) // tank movement direction
+    );
+    
+    
+    
+    //_________INSTANTIATE CONTROL_______________
+    
+    module control(
+        .mode(mode), // input to storage
+        .tank_move_dir(data), //input to storage
+        .clk(CLOCK_50),
+        .resetn(KEY[0]), // the input to reset the game
+        .game_state, // 0 if not in game, 1 if in game. 
+        .instruction(instruction), //keyboard input
+
+    );
+
+    
 
     reg [2:0] colour;
     reg [6:0] x;
@@ -54,7 +101,3 @@ module main
     defparam VGA.BACKGROUND_IMAGE = "black.mif";
     
     
-    //INSTANTIATE CONTROL
-    
-    
-    //INSTANTITATE DATAPATH
