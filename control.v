@@ -39,9 +39,7 @@ module control(
     input resetn, // the input to reset the game
     input game_state, // 0 if not in game, 1 if in game. 
     input instruction, //keyboard input
-    input game_over;
 
-    output reg load_game,
     );
 
     //________________________GAME STATE________________________
