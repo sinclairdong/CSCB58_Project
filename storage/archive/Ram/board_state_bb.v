@@ -35,7 +35,7 @@
 module board_state (
 	address,
 	clock,
-	data,
+	datboard_statea,
 	wren,
 	q);
 

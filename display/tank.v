@@ -1,6 +1,6 @@
 // Tank
 
-module Tank
+module tank
     (
         CLOCK_50,                        //    On Board 50 MHz
         // Your inputs and outputs here
@@ -63,10 +63,10 @@ module Tank
     // for the VGA controller, in addition to any other functionality your design may require.
 	reg tank = 26'b00000011111111111111111111;
     wire ld_x, ld_y;
-    reg [2:0] color;
-    reg [2:0] white = 3'b111;
-    reg [6:0] x;
-    reg [6:0] y;
+    wire [2:0] colour;
+    wire [2:0] white = 3'b111;
+    wire [6:0] x;
+    r [6:0] y;
     reg  writeEn;
     wire [3:0] stateNum;
     reg [6:0] init_x = 7'b1111111;
@@ -74,11 +74,11 @@ module Tank
     wire [2:0] color;
     reg [25:0] ccc = 26'b0;
     // Instansiate datapath 
-    datapath d(.clk(CLOCK_50), .ld_x(ld_x), .ld_y(ld_y), .in_x(init_x), .in_y(init_y), .reset_n(resetn), .x(x), .y(y), .colour(color), .write(writeEn), .stateNum(stateNum), .init_y(init_y), .color(white));
+    datapath d(.clk(CLOCK_50), .ld_x(ld_x), .ld_y(ld_y), .in_x(init_x), .in_y(init_y), .reset_n(resetn), .x(signal_x), .y(signal_y), .colour(color), .write(writeEn), .stateNum(stateNum), .init_y(init_y), .color(white));
    
     // Instansiate FSM control
     control c(.clk(CLOCK_50), .move_r(~KEY[0]), .move_l(~KEY[3]), .move_d(~KEY[1]), .move_u(~KEY[2]), .reset_n(resetn), .ld_x(ld_x), .ld_y(ld_y), .stateNum(stateNum), .reset_game(reset_game), .cc(ccc), .speed(tank));
-   
+endmodule  
 
 
 module control(clk, move_r, move_l, move_d, move_u, reset_n, ld_x, ld_y, stateNum, reset_game, cc, speed);
@@ -282,7 +282,7 @@ module datapath(clk, ld_x, ld_y, in_x, in_y, reset_n, x, y, colour, stateNum, wr
                 begin
                
                     y[6:0] <= y - 6'b000001;
-                    colour <= acolour;
+                    colour <= colour;
                     write <= 1'b1;
                 end
 
@@ -308,3 +308,4 @@ module RateDivider (clock, q, Clear_b, speed);
             q <= q + 1'b1;
     end
 endmodule
+

@@ -61,7 +61,7 @@ module storage(
         // along with pointers
         case(mode[3:0])
             4'b0001: begin
-                //update pointers
+                //update pointers    
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
 					 end
@@ -84,7 +84,7 @@ module storage(
 
     // Registers for tanks, and projectiles, and data for walls from RAM, depending on mode.
     always@(posedge clk) begin
-        if(reset) begin
+        if(~reset) begin		
             tank_1 <= 8'b00000000; //initial position of tank_1 top left corner
             tank_2 <= 8'b11111111; //initial position of tank_2 bottom right corner
             tank_1_dir <= 8'b00000001; // initial direction of tank_1 points down
@@ -97,12 +97,12 @@ module storage(
 		  
         else begin
 		      case(mode[3:0])
-			       4'b0000: begin//if trying to write to ram
+			       4'b0000: begin//if trying to write to ra
 //                    updated_pos[7:0] <= alu_out[7:0];
 //				        updated_dir[7:0] <= data[7:0];
 				        end
 					 4'b0001: begin //tank 1
-                //updated position and direction
+                //update position and direction
                     tank_1[7:0] <= updated_pos[7:0];
                     tank_1_dir[7:0] <= updated_dir[7:0];
 						  end
@@ -127,13 +127,13 @@ module storage(
 	     if(mode[3:0] == 4'b0000) begin //if trying to write to ram
             if(wren)begin
 				    //set value of wall with inputs address(of wall) and data(type of wall)
- //               board_state walls(address[7:0], clk, data[7:0], wren, alu_out[7:0]); 
+ //               board_state walls(address[7:0], clk, data[7    :0], wren, alu_out[7:0]); 
             end
         end
-        else begin //if trying to write to some specific register that is not ram
+        else begin //if trying to write     to some specific register that is not ram
             if(wren) begin
-		//signal to move up, and currently not in uppermost blocks
-		if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
+		          //signal to move up, and currently not in uppermost blocks
+                if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
                     alu_out[7:0] <= target_address[7:0] - 8'b00010000;
                 //signal to move down, and currently not in lowermost blocks
                 end else if((data[7:0] == 8'b00000001) && (target_address[7:0] <= 8'b11110000)) begin
@@ -151,10 +151,10 @@ module storage(
         end
     end
 	 
-    //Output result register
+    //Output result register		
     always@(posedge clk)
     begin
-        if(reset) begin
+        if(~reset) begin
             updated_pos <= 8'b0;
             updated_dir <= 8'b0;
         end
@@ -172,7 +172,7 @@ module move_tank(
     output reg [7:0] out_position,
     output reg [7:0] out_dir,
     input clk,
-    input [7:0] in_position,
+    input [7:0] in_position,		
     input [7:0] move_dir
     );
 

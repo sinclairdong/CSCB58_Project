@@ -27,11 +27,11 @@ module test_storage(LEDR, SW, KEY);
         .updated_dir(LEDR[15:8]),
         .clk(KEY[0]),
         .reset(KEY[1]),
-        .mode(mode[3:0]),
+        .mode(mode[3:0]), //choose tank/projectile
         .wren(KEY[2]),
         .load_out(KEY[3]),
-        .address(SW[7:0]),
-        .address(SW[15:8])
+        .address(SW[7:0]), //
+        .data(SW[15:8]) //tank mvmt direction
     );
 
 endmodule 
