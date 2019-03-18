@@ -23,12 +23,12 @@
 
 */
 
-module input
+module input_kb
     (
-        output reg instruction,
+        output reg [7:0] instruction,
         input clk,
         input kbclk,
-        input kbdat
+        input kbdat,
         input reset
     );
     
@@ -50,11 +50,11 @@ module input
     	 always @(*)
     	 
 	 begin
-		case(IN[7:0])
+		case(kb_scan_code[7:0])
 			8'b1110101: instruction = 8'b00000010;  // up    p2  arrow
 			8'b1110010: instruction = 8'b00000111;  // down  p2  arrow
-			8'b1101011: instruction = 8'b00000001;  // right p2  arrow
-			8'b1110100: instruction = 8'b00000100;  // left  p2  arrow
+			8'b1101011: instruction = 8'b00000100;  // right p2  arrow
+			8'b1110100: instruction = 8'b00000001;  // left  p2  arrow
 			8'b1110000: instruction = 8'b00001000;  // fire  p2  key pad
 			8'b0011101: instruction = 8'b00100000;  // up    p1  w
 			8'b0011011: instruction = 8'b01110000;  // down  p1  s
