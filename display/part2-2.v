@@ -1,6 +1,6 @@
 // Part 2 skeleton
 
-module lab6b
+module testdisplay
 	(
 		CLOCK_50,						//	On Board 50 MHz
 		// Your inputs and outputs here
@@ -14,7 +14,10 @@ module lab6b
 		VGA_SYNC_N,						//	VGA SYNC
 		VGA_R,   						//	VGA Red[9:0]
 		VGA_G,	 						//	VGA Green[9:0]
-		VGA_B   						//	VGA Blue[9:0]
+		VGA_B,   						//	VGA Blue[9:0]
+		HEX0,
+		HEX1,
+		HEX3
 	);
 
 	input			CLOCK_50;				//	50 MHz
@@ -31,6 +34,9 @@ module lab6b
 	output	[9:0]	VGA_R;   				//	VGA Red[9:0]
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
+	output [7:0] HEX0;
+	output [7:0] HEX1;
+	output [7:0] HEX3;
 	
 	wire resetn;
 	assign resetn = SW[17];
@@ -82,71 +88,57 @@ module lab6b
 			
 	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
 	// for the VGA controller, in addition to any other functionality your design may require.
-	wire ld_x, ld_y, ld_c, drawEn;
 	
     // Instansiate datapath
-	datapath d0(.ld_x(ld_x),
-		    .ld_y(ld_y),
-		    .ld_c(ld_c),
-		    .drawEn(drawEn),
-		    .position(SW[6:0]),
-		    .col(SW[9:7]),
+	datapath d0(
+		    .position(q),
+		    .col(q2),
 		    .resetn(resetn),
 		    .clock(CLOCK_50),
 		    .x_out(x),
 		    .y_out(y),
 		    .col_out(colour));
-
-    // Instansiate FSM control
-	control c0(.go(SW[16]),
-		   .ld(SW[15]),
-		   .resetn(resetn),
-		   .clock(CLOCK_50),
-		   .ld_x(ld_x),
-		   .ld_y(ld_y),
-		   .ld_c(ld_c),
-		   .writeEn(writeEn),
-		   .drawEn(drawEn));
+    
+    wire RateDivider, enable;
+    counter_28_bits (RateDivider, resetn , CLOCK_50, SW[16], 28'b010111110101111000010000000);
+	assign enable = (RateDivider == 28'b0) ? 1 : 0;
+	
+	wire [7:0] q;
+	counter_8_bits pos (q, resetn, enable, SW[16]);
+	wire [2:0] q2;
+	counter_3_bits col (q2, resetn, enable, SW[16]);
+	hex_display(q[3:0], HEX0);
+	hex_display(q[7:4], HEX1);
+	hex_display(q2[2:0], HEX3);
+	
+	// sw 16 start
+	// sw 17 high to allow changes
     
 endmodule
 
-module datapath(ld_x, ld_y, ld_c, drawEn, position, col, resetn, clock, x_out, y_out, col_out);
-	input ld_x, ld_y, ld_c, drawEn, resetn, clock;
-	input [2:0] col;
-	input [6:0] position;
-	output [7:0] x_out;
-	output [6:0] y_out;
-	output [2:0] col_out;
+
+
+
+module datapath(
+    input resetn, clock,
+	input [2:0] col,
+	input [7:0] position,
+	output [7:0] x_out,
+	output [6:0] y_out,
+	output [2:0] col_out
+
+
+);
 
 	reg [7:0] x;
 	reg [6:0] y;
-	reg [2:0] c;
 	reg [3:0] counter;
 	
 	always @(posedge clock)
 	begin
 		if (!resetn)
-		begin
-			x = 8'b00000000;
-			y = 7'b0000000;
-			c = 3'b000;
-		end
-		else
-		begin
-			if (ld_x)
-				x <= {1'b0, position};
-			else if (ld_y)
-				y <= position;
-			else if (ld_c)
-				c <= col;
-		end
-	end
-	
-	always @(posedge clock)
-	begin
-		if (!resetn)
 			counter <= 4'b0000;
-		else if (drawEn)
+		else 
 		begin
 			if (counter == 4'b1111)
 				counter <= 4'b0000;
@@ -155,70 +147,10 @@ module datapath(ld_x, ld_y, ld_c, drawEn, position, col, resetn, clock, x_out, y
 		end
 	end
 
-	assign x_out = x + counter[1:0];
-	assign y_out = y + counter[3:2];
-	assign col_out = c;
+	assign x_out = position[7:4] * 10 + counter[1:0];
+	assign y_out = position[3:0] * 10 + counter[3:2];
+	assign col_out = col;
 
 endmodule
 
-module control(go, ld, resetn, clock, ld_x, ld_y, ld_c, writeEn, drawEn);
 
-	input go, ld, resetn, clock;
-	output reg ld_x, ld_y, ld_c, writeEn, drawEn;
-	
-	reg [2:0] curr_state, next_state;
-
-	localparam      Load_x = 3'd0,
-			Load_x_wait= 3'd1,
-			Load_y = 3'd2,
-			Load_y_wait = 3'd3,
-			Load_c = 3'd4,	
-			Load_c_wait = 3'd5,				
-			Draw = 3'd6;
-
-	always @(*)
-	begin: state_table
-		case (curr_state)
-			Load_x: next_state = ld ? Load_x_wait : Load_x;
-			Load_x_wait: next_state = ld ? Load_x_wait : Load_y;
-			Load_y: next_state = ld ? Load_y_wait : Load_y;
-			Load_y_wait: next_state = ld ? Load_y_wait : Load_c;
-			Load_c: next_state = go ? Load_c_wait : Load_c;
-			Load_c_wait: next_state = go ? Load_c_wait : Draw;
-			Draw: next_state = ld ? Load_x : Draw;
-			default: next_state = Load_x;
-		endcase
-	end
-	
-	always @(*)
-	begin: part2_signals
-		ld_x = 1'b0;
-		ld_y = 1'b0;
-		ld_c = 1'b0;
-		writeEn = 1'b0;
-		drawEn = 1'b0;
-		case (curr_state)
-			Load_x: begin
-				ld_x = 1'b1;
-				end
-			Load_y: begin
-				ld_y = 1'b1;
-				end
-			Load_c: begin
-				ld_c = 1'b1;
-				end
-			Draw: begin
-				writeEn = 1'b1;
-				drawEn = 1'b1;
-				end
-		endcase
-	end
-	
-	always@(posedge clock)
-	begin: state_FFs
-        if(!resetn)
-            curr_state <= Load_x;
-        else
-            curr_state <= next_state;
-    end
-endmodule
