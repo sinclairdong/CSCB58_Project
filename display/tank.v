@@ -80,7 +80,7 @@ module tank
     // Put your code here. Your code should produce signals x,y,colour and writeEn/plot
     // for the VGA controller, in addition to any other functionality your design may require.
 	reg tank = 26'b00000011111111111111111111;
-    wire ld_x, ld_y;
+    wire load_x, load_y;
 	 wire write;
 	 wire [6:0] w_x, w_y;
     wire [2:0] color;
@@ -88,6 +88,7 @@ module tank
     wire [6:0] x;
     wire [6:0] y;
     wire  writeEn;
+	 // according to control module 
     wire [3:0] stateNum;
 	 // take 6-bits input for the initial position for player1 and player2
     reg [5:0] init_x = 6'b111111;
@@ -97,11 +98,11 @@ module tank
 	 // counter input shu yao hua ji ge
     reg [25:0] ccc = 26'b0;
     // Instansiate datapath 
-    datapath d(.clk(CLOCK_50), .ld_x(ld_x), .ld_y(ld_y), .in_x(init_x), .in_y(init_y), .reset_n(resetn), .x(w_x), .y(w_y), .output_colour(output_colour),
+    datapath d(.clk(CLOCK_50), .load_x(load_x), .load_y(load_y), .in_x(init_x), .in_y(init_y), .reset_n(resetn), .x(w_x), .y(w_y), .output_colour(output_colour),
 	 .write(writeEn), .stateNum(stateNum), .init_y(init_y), .color(white));
    
     // Instansiate FSM control
-    control c(.clk(CLOCK_50), .move_r(~KEY[0]), .move_l(~KEY[3]), .move_d(~KEY[1]), .move_u(~KEY[2]), .reset_n(resetn), .ld_x(ld_x), .ld_y(ld_y), .stateNum(stateNum), .reset_game(reset_game), .cc(ccc), .speed(tank));
+    control c(.clk(CLOCK_50), .move_r(~KEY[0]), .move_l(~KEY[3]), .move_d(~KEY[1]), .move_u(~KEY[2]), .reset_n(resetn), .load_x(load_x), .load_y(load_y), .stateNum(stateNum), .reset_game(reset_game), .cc(ccc), .speed(tank));
 endmodule   
 
 
@@ -137,25 +138,36 @@ module reset_background(clock, drawEn, x_out, y_out, col_out);
 endmodule
 
 
-module control(clk, move_r, move_l, move_d, move_u, reset_n, ld_x, ld_y, stateNum, reset_game, cc, speed);
+module control(clk, move_r, move_l, move_d, move_u, reset_n, load_x, load_y, stateNum, reset_game, cc, speed);
+	// cc, counter for when to draw player1 and player2
     input [25:0] cc;
     input reset_game;
+	 // move for right, left, down, up
     input clk, move_r, move_l, move_d, move_u, reset_n;
-    output reg ld_y, ld_x;
+    output reg load_y, load_x;
     reg [3:0] curr, next;
     output reg [3:0] stateNum;
+	// return to state clear after a cycle
     localparam S_CLEAR    = 4'b0000;
+	 // state of loading x coordinate
     localparam S_LOAD_X    = 4'b0001;
+	 // intermediate state, waiting for y to load 
     localparam S_WAIT_Y    = 4'b0010;
+	 // state of loading x coordinate
     localparam S_LOAD_Y    = 4'b0011;
+	 // intermediate state, waiting the switch to be pressed
     localparam wait_input    = 4'b0100;
+	 // state_clear, erase the previous one
     localparam clear_all    = 4'b0101;
+	 // according to the input, enter the corresponding states
     localparam print_right    = 4'b0110;
     localparam print_left    = 4'b0111;
     localparam print_down    = 4'b1000;
     localparam print_up    = 4'b1001;
+	 // after finished drawing, enter this state
     localparam temp_selecting_state = 4'b1010;
     localparam after_drawing = 4'b1011;
+	 //  -> print -> temp -> cleanUp -> print
     localparam cleanUp = 4'b1100;
     wire [26:0] now;
     wire result;
@@ -189,6 +201,7 @@ module control(clk, move_r, move_l, move_d, move_u, reset_n, ld_x, ld_y, stateNu
             print_left: next =  reset_game ? S_LOAD_Y : after_drawing;
             print_down: next = reset_game ? S_LOAD_Y : after_drawing;
             print_up: next = reset_game ? S_LOAD_Y : after_drawing;
+				// erase the previous movement
             after_drawing: next= temp_selecting_state;
         default: next = S_CLEAR;
         endcase
@@ -196,54 +209,54 @@ module control(clk, move_r, move_l, move_d, move_u, reset_n, ld_x, ld_y, stateNu
 
     always@(*)
     begin: enable_signals
-        ld_x = 1'b0;
-        ld_y = 1'b0;
+        load_x = 1'b0;
+        load_y = 1'b0;
         stateNum = 4'b0000;
         case (curr)
             S_LOAD_X:
             	begin
-                ld_x = 1'b1;
+                load_x = 1'b1;
                 end
 
             S_LOAD_Y:
             	begin
-                ld_y = 1'b1;
+                load_y = 1'b1;
                 end
 
             cleanUp:
             	begin
                 stateNum = 4'b0001;
-                ld_y = 1'b0;
+                load_y = 1'b0;
                 end
 
             clear_all:
             	begin
                 stateNum = 4'b0001;
-                ld_y = 1'b0;
+                load_y = 1'b0;
                 end
            
             print_right:
             	begin
                 stateNum = 4'b0100;
-                ld_y = 1'b0;
+                load_y = 1'b0;
                 end
            
             print_down:
             	begin
                 stateNum = 4'b0011;
-                ld_y = 1'b0;
+                load_y = 1'b0;
                 end
                
             print_left:
             	begin
                 stateNum = 4'b0010;
-                ld_y = 1'b0;
+                load_y = 1'b0;
                 end
 
             print_up:
             	begin
                 stateNum = 4'b1001;
-                ld_y = 1'b0;
+                load_y = 1'b0;
                 end      
             after_drawing:
             	begin
@@ -263,12 +276,12 @@ module control(clk, move_r, move_l, move_d, move_u, reset_n, ld_x, ld_y, stateNu
 
 endmodule
 
-module datapath(clk, ld_x, ld_y, in_x, in_y, reset_n, x, y, output_colour, stateNum, write, init_y, color);
+module datapath(clk, load_x, load_y, in_x, in_y, reset_n, x, y, output_colour, stateNum, write, init_y, color);
     input clk;
     input [6:0] in_x, in_y;
     input [6:0] init_y;
     input [2:0] color;
-    input ld_x, ld_y;
+    input load_x, load_y;
     input reset_n;
     output reg [2:0] output_colour;
     output reg write;
@@ -286,13 +299,13 @@ module datapath(clk, ld_x, ld_y, in_x, in_y, reset_n, x, y, output_colour, state
         end
         else
         begin
-            if(ld_x)
+            if(load_x)
                 begin
                     x[6:0] <= in_x;
                     y[6:0] <= in_y;
                     write <= 1'b0;
                 end
-            else if(ld_y)
+            else if(load_y)
                 begin
                     write <= 1'b0;
                 end
