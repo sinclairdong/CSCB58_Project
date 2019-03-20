@@ -46,7 +46,7 @@ module counter_28_bits(q, clear_b, clock, Enable);
 		begin
 		if (clear_b == 1'b0) // when Clear_b is 0...
 			q <= 0; // set q to 0
-		else if (q == 28'b0000001111111111111111111111) // ...otherwise if q is the maximum counter value
+		else if (q == 28'b00001111111111111111111111) // ...otherwise if q is the maximum counter value
 			q <= 28'b0; // reset q to 0
 		else if (Enable == 1'b1) // ...otherwise update q (only when Enable is 1)
 			q <= q + 1'b1; // increment q
