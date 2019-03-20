@@ -17,11 +17,13 @@ module testdisplay
 		VGA_B,   						//	VGA Blue[9:0]
 		HEX0,
 		HEX1,
-		HEX3
+		HEX3,
+		LEDR
 	);
 
 	input			CLOCK_50;				//	50 MHz
 	input   [17:0]   SW;
+	output [17:0] LEDR;
 	// input   [3:0]   KEY;
 
 	// Declare your inputs and outputs here
@@ -44,7 +46,7 @@ module testdisplay
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	wire [2:0] colour;
 	wire [7:0] x;
-	wire [6:0] y;
+	wire [7:0] y;
 	wire writeEn;
 
 	// Create an Instance of a VGA controller - there can be only one!
@@ -99,17 +101,20 @@ module testdisplay
 		    .y_out(y),
 		    .col_out(colour));
     
-    wire RateDivider, enable;
-    counter_28_bits (RateDivider, resetn , CLOCK_50, SW[16], 28'b010111110101111000010000000);
+	 assign writeEn = SW[15];
+    wire [27:0] RateDivider; 
+	 wire enable;
+    counter_28_bits (RateDivider, resetn , CLOCK_50, SW[16]);
 	assign enable = (RateDivider == 28'b0) ? 1 : 0;
 	
 	wire [7:0] q;
-	counter_8_bits pos (q, resetn, enable, SW[16]);
+	counter_8_bits pos (q, resetn, CLOCK_50, enable);
 	wire [2:0] q2;
-	counter_3_bits col (q2, resetn, enable, SW[16]);
+	counter_3_bits col (q2, resetn, CLOCK_50, enable);
 	hex_display(q[3:0], HEX0);
 	hex_display(q[7:4], HEX1);
 	hex_display(q2[2:0], HEX3);
+	assign LEDR[17] = enable;
 	
 	// sw 16 start
 	// sw 17 high to allow changes
@@ -124,7 +129,7 @@ module datapath(
 	input [2:0] col,
 	input [7:0] position,
 	output [7:0] x_out,
-	output [6:0] y_out,
+	output [7:0] y_out,
 	output [2:0] col_out
 
 
@@ -132,23 +137,23 @@ module datapath(
 
 	reg [7:0] x;
 	reg [6:0] y;
-	reg [3:0] counter;
+	reg [5:0] counter;
 	
 	always @(posedge clock)
 	begin
 		if (!resetn)
-			counter <= 4'b0000;
+			counter <= 6'b000000;
 		else 
 		begin
-			if (counter == 4'b1111)
-				counter <= 4'b0000;
+			if (counter == 6'b111111)
+				counter <= 6'b000000;
 			else
 				counter <= counter + 1'b1;
 		end
 	end
 
-	assign x_out = position[7:4] * 10 + counter[1:0];
-	assign y_out = position[3:0] * 10 + counter[3:2];
+	assign x_out = position[3:0] * 10 + counter[2:0] + 1;
+	assign y_out = position[7:4] * 10 + counter[5:3] + 1;
 	assign col_out = col;
 
 endmodule
