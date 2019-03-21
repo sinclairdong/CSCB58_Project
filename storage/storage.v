@@ -1,5 +1,6 @@
 /* Wrapper module for storage of data. Access ram/registers through the following modes:
-* ram: 0000
+* read ram: 0000
+* edit ram: 1111
 * tank1 address: 0001
 * tank1 direction: 0010
 * tank1 projectile address: 0011
@@ -19,9 +20,11 @@
 *
 * Active high reset
 *
-* Walls:
-*     no wall: 00000000
-*     indestructible wall: 00000001
+* RAM: 8 bit ram
+*
+*|____7____|____6____|____5____|____4____|____3____|____2____|____1____|____0____|
+*   wall      tank1     tank2     proj       di1       di2
+*
 */
 module storage(
     output reg [7:0] updated_pos,
@@ -34,8 +37,7 @@ module storage(
     input [7:0] data  // tank movement direction
     );
 
-    wire wren;
-	 wire [7:0] ram_out;
+
     //tanks address registers
     reg [7:0] tank_1, tank_2;
 
@@ -51,8 +53,12 @@ module storage(
     //alu input muxes
     reg [7:0] target_address, target_direction;  //for tank. Address refers to position
 
-	 //alu output
-	 reg [7:0] alu_out;
+    //alu output
+    reg [7:0] alu_out;
+
+    //wires for RAM operations
+    wire wren;
+    wire [7:0] ram_out;
 
     //ALU multiplexers
     always@(*)
@@ -82,7 +88,7 @@ module storage(
 			endcase
     end
 
-    // Registers for tanks, and projectiles, and data for walls from RAM, depending on mode.
+    // Registers for tanks, and projectiles, depending on mode.
     always@(posedge clk) begin
         if(~reset) begin		
             tank_1 <= 8'b00000000; //initial position of tank_1 top left corner
@@ -96,51 +102,47 @@ module storage(
         end
 		  
         else begin
-		      case(mode[3:0])
-			       4'b0000: begin//if trying to write to ra
-//                    updated_pos[7:0] <= alu_out[7:0];
-//				        updated_dir[7:0] <= data[7:0];
-				        end
-					 4'b0001: begin //tank 1
-                //update position and direction
+            case(mode[3:0])
+                4'b0001: begin //tank 1
+                    //update position and direction
                     tank_1[7:0] <= updated_pos[7:0];
                     tank_1_dir[7:0] <= updated_dir[7:0];
-						  end
-					 4'b0011: begin //tank 1 proj
+                    end
+                4'b0011: begin //tank 1 proj
                     tank_1_proj[7:0] <= updated_pos[7:0];
                     tank_1_proj_dir[7:0] <= updated_dir[7:0];
-						  end
-					 4'b0101: begin //tank 2
+                    end
+                4'b0101: begin //tank 2
                     tank_2[7:0] <= updated_pos[7:0];
                     tank_2_dir[7:0] <= updated_dir[7:0];
-						  end
-					 4'b0111: begin //tank 2 proj
+                    end
+                4'b0111: begin //tank 2 proj
                     tank_2_proj[7:0] <= updated_pos[7:0];
                     tank_2_proj_dir[7:0] <= updated_dir[7:0];
-						  end
-				endcase
+                    end
+            endcase
         end
     end
-	 assign wren = mode == 4'b0000;
-	board_state (address[7:0], clk, data[7:0], wren, ram_out[7:0]); 
-	 // ALU
-	 always@(posedge clk) begin
-			 //signal to move up, and currently not in uppermost blocks
-			 if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
-				  alu_out[7:0] <= target_address[7:0] - 8'b00010000;
-			 //signal to move down, and currently not in lowermost blocks
-			 end else if((data[7:0] == 8'b00000001) && (target_address[7:0] <= 8'b11110000)) begin
-				  alu_out[7:0] <= target_address[7:0] + 8'b00010000;
-			 //signal to move left, and currently not in leftmost blocks
-			 end else if((data[7:0] == 8'b00000011) && ((target_address[7:0] % 8'b00010000) >= 8'b00000001)) begin
-				  alu_out[7:0] <= target_address[7:0] - 8'b00000001;
-			 //signal to move right, and currently not in rightmost blocks
-			 end else if((data[7:0] == 8'b00000111) && ((target_address[7:0] % 8'b00010000) <= 8'b00001110)) begin
-				  alu_out[7:0] <= target_address[7:0] + 8'b00000001;
-			 end else begin
-				  alu_out[7:0] <= target_address[7:0];
-			 end
-	  end
+    assign wren = mode == 4'b0000;
+    board_state (address[7:0], clk, data[7:0], wren, ram_out[7:0]); 
+    // ALU
+    always@(posedge clk) begin
+        //signal to move up, and currently not in uppermost blocks
+        if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
+            alu_out[7:0] <= target_address[7:0] - 8'b00010000;
+        //signal to move down, and currently not in lowermost blocks
+        end else if((data[7:0] == 8'b00000001) && (target_address[7:0] <= 8'b11110000)) begin
+            alu_out[7:0] <= target_address[7:0] + 8'b00010000;
+        //signal to move left, and currently not in leftmost blocks
+        end else if((data[7:0] == 8'b00000011) && ((target_address[7:0] % 8'b00010000) >= 8'b00000001)) begin
+            alu_out[7:0] <= target_address[7:0] - 8'b00000001;
+        //signal to move right, and currently not in rightmost blocks
+        end else if((data[7:0] == 8'b00000111) && ((target_address[7:0] % 8'b00010000) <= 8'b00001110)) begin
+            alu_out[7:0] <= target_address[7:0] + 8'b00000001;
+        end else begin
+            alu_out[7:0] <= target_address[7:0];
+        end
+    end
 	 
     //Output result register		
     always@(posedge clk)
