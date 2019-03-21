@@ -1,0 +1,131 @@
+module display
+	(
+		CLOCK_50,						//	On Board 50 MHz
+		// Your inputs and outputs here
+        // KEY,
+        SW,
+		mode,
+		position,
+		done,
+		direction,
+		x,
+		y,
+	);
+	input [3:0] mode;
+	input [7:0] position;
+	output done;
+	output [3:0] x, y;
+	wire resetn;
+	
+	// Create the colour, x, y and writeEn wires that are inputs to the controller.
+	wire [2:0] colour;
+	wire [7:0] x;
+	wire [6:0] y;
+	wire [3:0] row, col;
+	wire writeEn;
+	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
+	// for the VGA controller, in addition to any other functionality your design may require.
+	 
+	 assign row = updated_pos[3:0];
+	 assign col = updated_pos[7:4];
+	 
+	 always @(posedge clock)
+	begin
+		begin
+			if (mode == 0001)
+				colour <= 3'b001;
+			else if (mode == 0101)
+				colour <= 3'b010;
+			else if (mode == 0011)
+				colour <= 3'b100;
+			else if (mode == 0111)
+				colour <= 3'b110;
+		end
+	end
+	
+	start_x = col * 15 + 3;
+	start_y = row * 15 + 4;
+	gun_x = col * 15 + 11;
+	gun_y = row * 15 + 7;
+	
+	always @(updated_pos)
+	begin
+		clear_b <= 1'b0;
+		Enable <= 1'b1;
+	end
+	
+//* tank1 address: 0001
+//* tank1 direction: 0010
+//* tank1 projectile address: 0011
+//* tank1 projectile direction: 0100
+//* tank2 address: 0101
+//* tank2 direction: 0110
+//* tank2 projectile address: 0111
+//* tank2 projectile direction: 1000
+
+//8 bit ram
+//|_7_|___6__|__5__|_4__|_3_|__2_|____1____|____0____|
+// wall tank1 tank2 proj di1 di2
+	always @(posedge clock)
+	begin
+	// check the data given by the storage if it is tank or not
+	// if it is tank1 or tank2
+		if (mode ==8'b01000000 || mode == 8'b00100000)
+		begin
+		 // when it finish drawing
+			if (q == 6'd67)
+				done <= 1'b1;
+			// let the shooting be white
+			else if (q == 7'd65)
+			begin
+				colour <= 3'b111;
+				x <= gun_x;
+				y <= gun_y;
+				done <= 1'b0;
+			end
+			else if (q == 7'd66)
+			begin
+				colour <= 3'b111;
+				x <= gun_x + 1;
+				y <= gun_y;
+				done <= 1'b0;
+				end
+			else
+			begin
+				colour <= 3'b101;
+				x <= start_x + q[3:0];
+				y <= start_y + q[7:4];
+				q <= q + 1'b1;
+				done <= 1'b0;
+			end
+		end
+		// if it is projectile
+		else if (mode == 8'00010000)
+		
+	end
+	
+
+	counter c(.q(q), .clear_b(clear_b), .clock(clock), .Enable(Enable));
+
+		
+    
+endmodule
+
+module counter(q, clear_b, clock, Enable);
+
+
+	output reg [6:0] q; // declare q
+	input clear_b, clock, Enable;
+	
+	always @(posedge clock, negedge clear_b) // triggered every time clock rises
+		begin
+		if (clear_b == 1'b0) // when Clear_b is 0...
+			q <= 0; // set q to 0
+		else if (q == 7'b1111111) // ...otherwise if q is the maximum counter value
+			q <= 6'b0; // reset q to 0
+		else if (Enable == 1'b1) // ...otherwise update q (only when Enable is 1)
+			q <= q + 1'b1; // increment q
+			// q <= q - 1'b1; // alternatively, decrement q
+	end
+	
+endmodule
