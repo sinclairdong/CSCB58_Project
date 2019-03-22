@@ -25,8 +25,14 @@
 * RAM: 8 bit ram
 *
 *|____7____|____6____|____5____|____4____|____3____|____2____|____1____|____0____|
-*   wall      tank1     tank2     proj         di1 (2bits)         di2(2bits)
+*   wall      tank1     tank2     proj       di1       di2
 *
+*
+*
+* WHEN WRITING / READING FROM RAM:
+* -output updated_pos will be the address to read from
+* -output updateD_dir will be the value at the address
+* 
 */
 module storage(
     output reg [7:0] updated_pos,
@@ -46,7 +52,7 @@ module storage(
     //tank directions registers
     reg [7:0] tank_1_dir, tank_2_dir; 
 
-    //projectile address registers
+    //projectile address register
     reg [7:0] tank_1_proj, tank_2_proj;
 
     //projectile direction registers
@@ -61,55 +67,36 @@ module storage(
     //wires for RAM operations
     wire wren;
     wire [7:0] ram_out;
-
-    //wires to set value in a given address in RAM
+    assign wren = mode == 4'b1111; // when writing to RAM
+    //registers to set value in a given address in RAM
     wire has_tank_1;
     wire has_tank_2;
+	 wire has_proj_1;
+	 wire has_proj_2;
     wire has_proj;
-    wire dir_1[1:0];
-    wire dir_2[1:0];
-    wire ram_data;
+	 wire [1:0]dir_t1;
+	 wire [1:0]dir_t2;
+    wire [1:0]dir;
+    wire [7:0]ram_data;
 
     //Access RAM
-    board_state (address[7:0], clk, data[7:0], wren, ram_out[7:0]); 
+    board_state (address[7:0], clk, ram_data[7:0], wren, ram_out[7:0]); 
 
-    //RAM component
-    always@(posedge clk)
-    begin
-        case(mode[3:0])
-            4'b0000: begin
-                updated_pos[7:0] <= ram_out[7:0];
-            end
-            4'b1111: begin
-                
-                assign has_tank_1 = tank_1[7:0] == address[7:0];
-                assign has_tank_2 = tank_2[7:0] == address[7:0];
-                if(has_tank_1 == 1) begin
-                    assign dir_1[1:0] = tank_1_proj[2:0];
-                end
-                if(has_tank_2 == 1) begin
-                    assign dir_2[1:0] = tank_2_proj[2:0];
-                end
-                if(tank_1_proj[7:0] == address[7:0]) begin
-                    assign has_proj = 1;
-                end
-                else if(tank_2_proj[7:0] == address[7:0]) begin
-                    assign has_proj = 1;
-                end
-                else begin
-                    assign has_proj = 0;
-                end
+    //Check if there is a tank in given address
+    assign has_tank_1 = tank_1[7:0] == address[7:0];
+    assign has_tank_2 = tank_2[7:0] == address[7:0];
+	 //get the direction of the tank; if there is no tank
+    assign dir_t1[1:0] = (has_tank_1 == 1'b1) ? tank_1_dir[1:0] : 0;
+	 assign dir_t2[1:0] = (has_tank_2 == 1'b1) ? tank_2_dir[1:0] : 0;
+	 assign dir[1:0] = dir_t1[1:0] + dir_t2[1:0];
+	 //check if there is a projectile in given address
+    assign has_proj_1 = (tank_1_proj[7:0] == address[7:0]) ? 1'b1 : 1'b0;
+    assign has_proj_2 = (tank_2_proj[7:0] == address[7:0]) ? 1'b1 : 1'b0;
+	 assign has_proj = has_proj_1 + has_proj_2;
 
-                //concatenate all the data for ram.
-                assign ram_data = {1'b0, has_tank_1, has_tank_2, has_proj, dir_1[1:0], dir_2[1:0]};
-                //if the input address contains data, then set wren high; if no data, do not update.
-                if(ram_data != 8'b0) begin
-                    assign wren = mode == 4'b1111;
-                end
-            end
-        endcase
-    end
 
+    //concatenate all the data for ram.
+    assign ram_data[7:0] = {1'b0, has_tank_1, has_tank_2, has_proj, dir[1:0], 2'b00};
 
 
     //ALU multiplexers
@@ -205,8 +192,18 @@ module storage(
         end
         else begin
             if(load_out)begin
-               updated_pos <= alu_out[7:0];
-               updated_dir <= data[7:0];
+				   if(mode[3:0] == 4'b0000) begin
+					    updated_pos <= address[7:0];
+						 updated_dir <= ram_out[7:0];
+					end
+					else if(mode[3:0] == 4'b1111)begin
+					    updated_pos <= address[7:0];
+						 updated_dir <= ram_out[7:0];
+					end
+					else begin
+                   updated_pos <= alu_out[7:0];
+                   updated_dir <= data[7:0];
+					end
             end
         end
     end
