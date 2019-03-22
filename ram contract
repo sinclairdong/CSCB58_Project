@@ -1,4 +1,4 @@
 8 bit ram
 
 |____7____|____6____|____5____|____4____|____3____|____2____|____1____|____0____|
-   wall      tank1     tank2     proj       di1       di2
+   wall      tank1     tank2     proj         di1 (2 bits)        di2 (2 bits)

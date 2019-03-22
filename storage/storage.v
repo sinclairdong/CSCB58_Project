@@ -9,21 +9,23 @@
 * tank2 direction: 0110
 * tank2 projectile address: 0111
 * tank2 projectile direction: 1000
+* 
+*
 *
 * Tank Address is 8 bits binary; first 4 bits the column, last 4 bits the row.
 *
 * Tank Direction is 8 bits binary (Also use this assignment for input data to signal movement):
 *     up: 00000000
 *     down: 00000001
-*     left: 00000011
-*     right: 00000111
+*     left: 00000010
+*     right: 00000011
 *
 * Active high reset
 *
 * RAM: 8 bit ram
 *
 *|____7____|____6____|____5____|____4____|____3____|____2____|____1____|____0____|
-*   wall      tank1     tank2     proj       di1       di2
+*   wall      tank1     tank2     proj         di1 (2bits)         di2(2bits)
 *
 */
 module storage(
@@ -60,6 +62,56 @@ module storage(
     wire wren;
     wire [7:0] ram_out;
 
+    //wires to set value in a given address in RAM
+    wire has_tank_1;
+    wire has_tank_2;
+    wire has_proj;
+    wire dir_1[1:0];
+    wire dir_2[1:0];
+    wire ram_data;
+
+    //Access RAM
+    board_state (address[7:0], clk, data[7:0], wren, ram_out[7:0]); 
+
+    //RAM component
+    always@(posedge clk)
+    begin
+        case(mode[3:0])
+            4'b0000: begin
+                updated_pos[7:0] <= ram_out[7:0];
+            end
+            4'b1111: begin
+                
+                assign has_tank_1 = tank_1[7:0] == address[7:0];
+                assign has_tank_2 = tank_2[7:0] == address[7:0];
+                if(has_tank_1 == 1) begin
+                    assign dir_1[1:0] = tank_1_proj[2:0];
+                end
+                if(has_tank_2 == 1) begin
+                    assign dir_2[1:0] = tank_2_proj[2:0];
+                end
+                if(tank_1_proj[7:0] == address[7:0]) begin
+                    assign has_proj = 1;
+                end
+                else if(tank_2_proj[7:0] == address[7:0]) begin
+                    assign has_proj = 1;
+                end
+                else begin
+                    assign has_proj = 0;
+                end
+
+                //concatenate all the data for ram.
+                assign ram_data = {1'b0, has_tank_1, has_tank_2, has_proj, dir_1[1:0], dir_2[1:0]};
+                //if the input address contains data, then set wren high; if no data, do not update.
+                if(ram_data != 8'b0) begin
+                    assign wren = mode == 4'b1111;
+                end
+            end
+        endcase
+    end
+
+
+
     //ALU multiplexers
     always@(*)
     begin
@@ -70,21 +122,21 @@ module storage(
                 //update pointers    
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
-					 end
+                end
             4'b0011: begin
                 //tank_1_proj <= q;
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
-					 end
+                end
             4'b0101: begin
                 target_address <= tank_2;
                 target_direction <= tank_2_dir;
-					 end
+            end
             4'b0111: begin
                 //tank_2_proj <= q;
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
-					 end
+            end
 			endcase
     end
 
@@ -123,9 +175,9 @@ module storage(
             endcase
         end
     end
-    assign wren = mode == 4'b0000;
-    board_state (address[7:0], clk, data[7:0], wren, ram_out[7:0]); 
-    // ALU
+
+
+    // ALU for tank movement
     always@(posedge clk) begin
         //signal to move up, and currently not in uppermost blocks
         if((data[7:0] == 8'b00000000) && (target_address[7:0] >= 8'b00010000)) begin
@@ -134,10 +186,10 @@ module storage(
         end else if((data[7:0] == 8'b00000001) && (target_address[7:0] <= 8'b11110000)) begin
             alu_out[7:0] <= target_address[7:0] + 8'b00010000;
         //signal to move left, and currently not in leftmost blocks
-        end else if((data[7:0] == 8'b00000011) && ((target_address[7:0] % 8'b00010000) >= 8'b00000001)) begin
+        end else if((data[7:0] == 8'b00000010) && ((target_address[7:0] % 8'b00010000) >= 8'b00000001)) begin
             alu_out[7:0] <= target_address[7:0] - 8'b00000001;
         //signal to move right, and currently not in rightmost blocks
-        end else if((data[7:0] == 8'b00000111) && ((target_address[7:0] % 8'b00010000) <= 8'b00001110)) begin
+        end else if((data[7:0] == 8'b00000011) && ((target_address[7:0] % 8'b00010000) <= 8'b00001110)) begin
             alu_out[7:0] <= target_address[7:0] + 8'b00000001;
         end else begin
             alu_out[7:0] <= target_address[7:0];
@@ -181,10 +233,10 @@ module move_tank(
         end else if((move_dir == 8'b00000001) && (in_position[7:0] <= 8'b11110000)) begin
             out_position[7:0] <= in_position[7:0] + 8'b00010000;
         //signal to move left, and currently not in leftmost blocks
-        end else if((move_dir == 8'b00000011) && ((in_position[7:0] % 8'b00010000) >= 8'b00000001)) begin
+        end else if((move_dir == 8'b00000010) && ((in_position[7:0] % 8'b00010000) >= 8'b00000001)) begin
             out_position[7:0] <= in_position[7:0] - 8'b00000001;
         //signal to move right, and currently not in rightmost blocks
-        end else if((move_dir == 8'b00000111) && ((in_position[7:0] % 8'b00010000) <= 8'b00001110)) begin
+        end else if((move_dir == 8'b00000011) && ((in_position[7:0] % 8'b00010000) <= 8'b00001110)) begin
             out_position[7:0] <= in_position[7:0] + 8'b00000001;
         end else begin
             out_position[7:0] <= in_position[7:0];
