@@ -42,7 +42,8 @@ module storage(
     input [3:0] mode,
     input load_out,
     input [7:0] address,
-    input [7:0] data  // tank movement direction
+    input [7:0] data,  // tank movement direction
+    input has_wall,
     );
 
 
@@ -96,7 +97,7 @@ module storage(
 
 
     //concatenate all the data for ram.
-    assign ram_data[7:0] = {1'b0, has_tank_1, has_tank_2, has_proj, dir[1:0], 2'b00};
+    assign ram_data[7:0] = {has_wall, has_tank_1, has_tank_2, has_proj, dir[1:0], 2'b00};
 
 
     //ALU multiplexers
@@ -205,6 +206,7 @@ module storage(
                    updated_dir <= data[7:0];
 					end
             end
+            load_out <= b1'0;
         end
     end
 endmodule
