@@ -34,17 +34,17 @@
 module control(
     output reg [4:0] mode, // input to storage
     output reg [7:0] tank_move_dir, //input to storage
+    output loadout,
 
     input clk,
-	 input resetn,
-    input game_state,
+	input resetn,
     input [7:0] instruction //keyboard input
 
     );
 
     //________________________GAME STATE________________________
     reg [2:0] next_state; 
-	 reg [2:0] current_state;
+	reg [2:0] current_state;
 		
 
     localparam S_PRE_GAME  = 2'b00;
@@ -90,24 +90,28 @@ module control(
                 begin
                 mode <= 4'b0101; // up    p2  arrow
                 tank_move_dir <= 8'b00000000;
+                loadout <= 1b'1;
                 end
 
 				8'b00000111: 
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000001;
+                loadout <= 1b'1;
                 end   // down  p2  arrow
 
             8'b00000100: 
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000011;
+                loadout <= 1b'1;
                 end    // left  p2  arrow
 
 				8'b00000001:
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000111;
+                loadout <= 1b'1;
                 end   // right p2  arrow
 
 			
@@ -115,7 +119,7 @@ module control(
 			8'b00001000: 
                 begin
                 mode = 4'b0001; 
-                tank_move_dir = 8'b00000000;
+                data = 
                 end     // fire  p2  key pad
                 */
 
@@ -126,40 +130,37 @@ module control(
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000000;
+                loadout <= 1b'1;
                 end // up    p1  w
 		
 	8'b01110000:
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000001;
+                loadout <= 1b'1;
                 end   // down  p1  s
 		
 	8'b01000000: 
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000011;
+                loadout <= 1b'1;
                 end   // left  p1  a
 		
 	8'b00010000: 
                 begin
                 mode = 4'b0001; 
                 tank_move_dir = 8'b00000111;
+                loadout <= 1b'1;
                 end  // right p1  d
             
             //_____________Tank 1 projectile______________
             /*
-			8'b10000000:   // current_state registers
-    always@(posedge clk)
-    begin: state_FFs
-        if(!resetn)
-            current_state <= S_LOAD_A;
-        else
-            current_state <= next_state;
-    end // state_FF
+			
                 begin
                 mode = 4'b; 
                 tank_move_dir = 8'b00000011;
-                end    // left  p2  arrow; // fire  p1  space
+                end   // fire  p1  space
                 */
 
 					 /*
@@ -171,7 +172,7 @@ module control(
 		*/
 		
 	endcase
-	
+
 	end
 
 endmodule
