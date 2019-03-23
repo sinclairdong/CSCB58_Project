@@ -23,10 +23,22 @@ module top_level_module
     output    [9:0]    VGA_G;                     //    VGA Green[9:0]
     output    [9:0]    VGA_B;                   //    VGA Blue[9:0]
 
-    
+
     wire instruction;
+
+    wire reg [7:0]updated_pos;
+    wire reg [7:0]updated_dir;
+    wire [7:0] mode;
+    wire [7:0] data;
+    wire ld;
+
+    wire [7:0] address;
+    wire reg [0:0]has_wall;
+    
     
     //_______INSTANTIATE KEYBOARD INPUT_________
+    
+
     input i0
     (
         .instruction(instruction),
@@ -36,36 +48,45 @@ module top_level_module
         .reset(KEY[0])
     );
      
-    wire reg [7:0]updated_pos;
-    wire reg [7:0]updated_dir;
-    wire [7:0] mode;
-    wire [7:0] data;
-
     
     //_______INSTANTIATE STORAGE AKA DATAPATH___________
-    storage S0
+    storage s0
     (
         .updated_pos(updated_pos),
         .updated_dir(updated_dir),
         .clk(CLOCK_50),
         .reset(KEY[0]),
         .mode(mode),
-        .wren,
-       // .load_out,
-       // .address,
+        .load_out(ld),
+        .address(address),
         .data(data) // tank movement direction
+        .has_wall(has_wall)
     );
     
-    
+
+    // TEST - plot column of wall at y = 2
+
+    assign address = b8'00100000;
+    initial 
+        begin 
+        while( address < 00101111 ) 
+            begin 
+                has_wall = b1'1;
+                address <= address + b8'00000001;
+                //allow storage to make changes
+                ld <= b1'1;
+            end 
+        end 
+            
     
     //_________INSTANTIATE CONTROL_______________
     
-    module control(
+    control c0(
         .mode(mode), // input to storage
         .tank_move_dir(data), //input to storage
+        .load_out(ld), //input to storage
         .clk(CLOCK_50),
         .resetn(KEY[0]), // the input to reset the game
-        .game_state, // 0 if not in game, 1 if in game. 
         .instruction(instruction), //keyboard input
 
     );
@@ -77,7 +98,7 @@ module top_level_module
     reg [6:0] y;
     reg  writeEn;   
 
-    // INSTANTIATE VGA
+    // INSTANTIATE DISPLAY
     vga_adapter VGA(
             .resetn(resetn),
             .clock(CLOCK_50),
