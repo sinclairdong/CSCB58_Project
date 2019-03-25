@@ -89,7 +89,7 @@ module display_all
 			end
 		end
 		// if it is left-right projectile 
-		else if (position == 8'b00010000 && )
+		else if (position == 8'b00010100 )
 		begin
         // assisin the starting coordinate of x,y
 //      assign start_x <= ;
@@ -107,8 +107,9 @@ module display_all
 				y <= start_y + q[7:4];
 				done <= 1'b0;	
 			end
+		end
         // if it is up-down projectile 
-		else if (position == 8'b00010000 && )
+		else if (position == 8'b00011000 )
 		begin
         // assisin the starting coordinate of x,y
 //      assign start_x <= ;
@@ -121,26 +122,27 @@ module display_all
 			begin
             // assign a color for the projectile
 				colour <= 3'b110;
-                // start drawing from 
-                x <= start_x + q[2:0];
+            // start drawing from 
+            x <= start_x + q[2:0];
 				y <= start_y + q[5:3];
 				done <= 1'b0;	
 			end
+		end
         // if it is a wall
-        else if (position == 8'1000000000)
-        begin
-            // when finish drawing wall
-            if (k == 8'd255)
-                done <= 1'b1;
-            else
+      else if (position == 8'b10000000)
+      begin
+          // when finish drawing wall
+          if (k == 8'd255)
+          done <= 1'b1;
+          else
             begin
             // assign a color for the wall
-                colour <= 3'b011;
-                x <= start_x + k[3:0];
-				y <= start_y + k[7:4];
-                done <= 1'b0;
-            end
-		end
+               colour <= 3'b011;
+               x <= start_x + k[3:0];
+					y <= start_y + k[7:4];
+               done <= 1'b0;
+				end
+      end
 //* Tank Direction is 8 bits binary (according to storage.v):
 //*     up: 00000000
 //*   down: 00000001
@@ -151,7 +153,7 @@ module display_all
 	
 
 	counter c(.q(q), .clear_b(clear_b), .clock(clock), .Enable(Enable));
-    counter_8_bits k(.k(k), .clear_b(clear_b), .clock(clock), .Enable(Enable));
+    counter_8_bits p(.k(k), .clear_b(clear_b), .clock(clock), .Enable(Enable));
 		
     
 endmodule
@@ -185,11 +187,10 @@ module counter_8_bits(k, clear_b, clock, Enable);
 		begin
 		if (clear_b == 1'b0) // when Clear_b is 0...
 			k <= 0; // set k to 0
-		else if (q == 8'b11000000) // ...otherwise if k is the maximum counter value
+		else if (k == 8'b11000000) // ...otherwise if k is the maximum counter value
 			k <= 8'b0; // reset k to 0
 		else if (Enable == 1'b1) // ...otherwise update k (only when Enable is 1)
 			k <= k + 1'b1; // increment k
 			// k <= k - 1'b1; // alternatively, decrement k
 	end
-	
-endmodule
+endmodule 
