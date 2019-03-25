@@ -37,11 +37,12 @@ module control(
     output loadout,
 
     input clk,
-	input resetn,
+    input resetn,
     input [7:0] instruction //keyboard input
 
     );
 
+	/*
     //________________________GAME STATE________________________
     reg [2:0] next_state; 
 	reg [2:0] current_state;
@@ -79,6 +80,8 @@ module control(
 				
 				endcase
     end
+    
+    */
 
 
     // update mode and move direction (for storage) based on keyboard input instruction
@@ -93,28 +96,28 @@ module control(
                         begin
                         mode = 4'b0001; 
                         tank_move_dir = 8'b00000000;
-                        loadout <= 1b'1;
+                        loadout <= 1'b1;
                         end // up    p1  w
                 
             8'b01110000:
                         begin
                         mode = 4'b0001; 
                         tank_move_dir = 8'b00000001;
-                        loadout <= 1b'1;
+                        loadout <= 1'b1;
                         end   // down  p1  s
                 
             8'b01000000: 
                         begin
                         mode = 4'b0001; 
                         tank_move_dir = 8'b00000011;
-                        loadout <= 1b'1;
+                        loadout <= 1'b1;
                         end   // left  p1  a
                 
             8'b00010000: 
                         begin
                         mode = 4'b0001; 
                         tank_move_dir = 8'b00000111;
-                        loadout <= 1b'1;
+                        loadout <= 1'b1;
                         end  // right p1  d
                     
             //_____________Tank 1 fire projectile______________
@@ -122,7 +125,7 @@ module control(
             8'b10000000:
                         begin
                         mode = 4'b0011; 
-                        loadout <= 1'b1
+                        loadout <= 1'b1;
                         end   // fire  p1  space
 
 
@@ -131,42 +134,39 @@ module control(
                 begin
                 mode <= 4'b0101; // up    p2  arrow
                 tank_move_dir <= 8'b00000000;
-                loadout <= 1b'1;
+                loadout <= 1'b1;
                 end
 
 			8'b00000111: 
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000001;
-                loadout <= 1b'1;
+                loadout <= 1'b1;
                 end   // down  p2  arrow
 
             8'b00000100: 
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000011;
-                loadout <= 1b'1;
+                loadout <= 1'b1;
                 end    // left  p2  arrow
 
-			8'b00000001:
+	    8'b00000001:
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000111;
-                loadout <= 1b'1;
+                loadout <= 1'b1;
                 end   // right p2  arrow
 
 			
               //_______tank 2 projecile_____________
-			8'b00001000: 
+	     8'b00001000: 
                 begin
-                mode = 4'b0000; // read from RAM
-                data = 
+                mode = 4'b0111; // read from RAM
+                loadout <= 1'b1;
                 end     // fire  p2  key pad
                 
-
-
 	//8'b11111110:   // pause
-		
 		
 	endcase
 
