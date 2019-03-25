@@ -80,13 +80,22 @@ Display and graphics is work in progress.  <--- This is TOP priority for next we
 Have not had the opportunity for any testing yet.
 
 
+WEEK 2：
 
-[This is an example of a report where things didn't go so well.]
-Week 1: 
-	We added and tested the sensors and the main FSM. 
-	The distance sensor we had intended to use didn't work as expected (wasn't precise enough at further distances, only seems to work accurately within 5-10cm), so instead we've decided to change the project to use a light sensor instead.
-	Had trouble getting the FSM to work (kept getting stuck in state 101, took longer to debug than expected), so we may not be able to add the high score feature. We have updated that in the project description as an optional feature.
+-implemented storage of 8bit data (relevant boolean info such as
+ has_wall, has_player, has_projectile, etc) for each of 8 bit(x256) address in RAM
+-top level wiring
+-progress on display
+-Tested for code compilability: control, storage, test_display
+-keyboard controls test success
 
+-display -> tanks, projectile, and walls graphics is still work in progress
+
+-TOP priorities for upcoming week:
+	-graphics
+	-a moving tank that responds to input
+	-projectile and collision
+	-putting everything together in top level
 
 
 References

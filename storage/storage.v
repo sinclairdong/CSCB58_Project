@@ -37,13 +37,14 @@
 module storage(
     output reg [7:0] updated_pos,
     output reg [7:0] updated_dir,
+    outptu reg [7:0] ram_out,
     input clk,
     input reset,
     input [3:0] mode,
     input load_out,
-    input [7:0] address,
+    input [7:0] address, // grid coordinates
     input [7:0] data,  // tank movement direction
-    input has_wall,
+    input has_wall, // 1 = true, 0 = false
     );
 
 
