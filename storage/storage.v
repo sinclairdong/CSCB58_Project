@@ -108,23 +108,48 @@ module storage(
         // along with pointers
         case(mode[3:0])
             4'b0001: begin
-                //update pointers    
+                //update tank1 position and direction
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
-                end
-            4'b0011: begin
-                //tank_1_proj <= q;
+
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
                 end
+
+            4'b0011: begin
+                // fire tank1 projecile
+
+                case(tank_1_dir[7:0])
+                    // tank direction up
+                    8'b00000000: begin
+                        //access RAM in read mode
+                        wren <= 4'b0000;
+
+                        // collision with wall or tank2
+                        if (ram_out[5:5] == 1'b1 || ram_out[7:7])
+
+                        else
+
+                            tank_1_dir -= 8'b00001000;
+                            address <= tank_1_dir;
+                            has_proj <= 1'b1;
+                            wren <= 4'b1111;
+
+
+                
+                end
             4'b0101: begin
+                //update tank2 position and direction
                 target_address <= tank_2;
                 target_direction <= tank_2_dir;
-            end
-            4'b0111: begin
-                //tank_2_proj <= q;
+
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
+            end
+
+            4'b0111: begin
+                //fire tank2 projectile
+                
             end
 			endcase
     end

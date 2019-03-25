@@ -85,6 +85,47 @@ module control(
     always @(posedge clk)
     begin
         case (instruction)
+
+            
+            /*____________Tank 1 movement________________*/
+
+            8'b00100000: 
+                        begin
+                        mode = 4'b0001; 
+                        tank_move_dir = 8'b00000000;
+                        loadout <= 1b'1;
+                        end // up    p1  w
+                
+            8'b01110000:
+                        begin
+                        mode = 4'b0001; 
+                        tank_move_dir = 8'b00000001;
+                        loadout <= 1b'1;
+                        end   // down  p1  s
+                
+            8'b01000000: 
+                        begin
+                        mode = 4'b0001; 
+                        tank_move_dir = 8'b00000011;
+                        loadout <= 1b'1;
+                        end   // left  p1  a
+                
+            8'b00010000: 
+                        begin
+                        mode = 4'b0001; 
+                        tank_move_dir = 8'b00000111;
+                        loadout <= 1b'1;
+                        end  // right p1  d
+                    
+            //_____________Tank 1 fire projectile______________
+                    
+            8'b10000000:
+                        begin
+                        mode = 4'b0011; 
+                        loadout <= 1'b1
+                        end   // fire  p1  space
+
+
             // ____________tank 2 movement______________
             8'b00000010: 
                 begin
@@ -93,7 +134,7 @@ module control(
                 loadout <= 1b'1;
                 end
 
-				8'b00000111: 
+			8'b00000111: 
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000001;
@@ -107,7 +148,7 @@ module control(
                 loadout <= 1b'1;
                 end    // left  p2  arrow
 
-				8'b00000001:
+			8'b00000001:
                 begin
                 mode = 4'b0101; 
                 tank_move_dir = 8'b00000111;
@@ -115,61 +156,17 @@ module control(
                 end   // right p2  arrow
 
 			
-            /*  _______tank 2 projecile_____________
+              //_______tank 2 projecile_____________
 			8'b00001000: 
                 begin
-                mode = 4'b0001; 
+                mode = 4'b0000; // read from RAM
                 data = 
                 end     // fire  p2  key pad
-                */
+                
 
 
-            /*____________Tank 1 movement________________*/
-
-	8'b00100000: 
-                begin
-                mode = 4'b0001; 
-                tank_move_dir = 8'b00000000;
-                loadout <= 1b'1;
-                end // up    p1  w
-		
-	8'b01110000:
-                begin
-                mode = 4'b0001; 
-                tank_move_dir = 8'b00000001;
-                loadout <= 1b'1;
-                end   // down  p1  s
-		
-	8'b01000000: 
-                begin
-                mode = 4'b0001; 
-                tank_move_dir = 8'b00000011;
-                loadout <= 1b'1;
-                end   // left  p1  a
-		
-	8'b00010000: 
-                begin
-                mode = 4'b0001; 
-                tank_move_dir = 8'b00000111;
-                loadout <= 1b'1;
-                end  // right p1  d
-            
-            //_____________Tank 1 projectile______________
-            /*
-			
-                begin
-                mode = 4'b; 
-                tank_move_dir = 8'b00000011;
-                end   // fire  p1  space
-                */
-
-					 /*
-	8'b11111111: 
-		begin 
-			resetn = 1'b1; // reset r
-		end
 	//8'b11111110:   // pause
-		*/
+		
 		
 	endcase
 
