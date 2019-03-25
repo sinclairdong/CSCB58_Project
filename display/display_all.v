@@ -16,7 +16,10 @@ module display_all
 	output reg done;
 	output reg [3:0] x, y;
 	wire resetn;
+	// declare the clock q,k,s
 	wire [5:0] q;
+	wire [7:0] k;
+	wire [1:0] s;
 	// access the data from storage to read
 	// Create the colour and writeEn wires that are inputs to the controller.
 	output reg [2:0] colour;
@@ -88,47 +91,27 @@ module display_all
 				done <= 1'b0;
 			end
 		end
-		// if it is left-right projectile 
-		else if (position == 8'b00010100 )
+		// if it is projectile 
+		else if (position == 8'b00010000 )
 		begin
         // assisin the starting coordinate of x,y
 //      assign start_x <= ;
 //      assign start_y <= ;
             // draw a 2*16
 			// when finish drawing projectile
-		   if (q == 7'd31)
+		   if (s == 2'd3)
 			done <= 1'b1;
 			else
 			begin
             // assign a color for the projectile
 				colour <= 3'b110;
-            // start drawing from (x,y+5) to (x+15, y+6)
-                x <= start_x + q[3:0];
-				y <= start_y + q[7:4];
+            // start drawing from (x+7,y+5) to (x+9, y+6)
+            x <= start_x + s[0];
+				y <= start_y + s[1];
 				done <= 1'b0;	
 			end
 		end
-        // if it is up-down projectile 
-		else if (position == 8'b00011000 )
-		begin
-        // assisin the starting coordinate of x,y
-//      assign start_x <= ;
-//      assign start_y <= ;
-			// draw a 12*2 
-            // when finish drawing projectile
-		   if (q == 6'd23)
-			done <= 1'b1;
-			else
-			begin
-            // assign a color for the projectile
-				colour <= 3'b110;
-            // start drawing from 
-            x <= start_x + q[2:0];
-				y <= start_y + q[5:3];
-				done <= 1'b0;	
-			end
-		end
-        // if it is a wall
+      // if it is a wall
       else if (position == 8'b10000000)
       begin
           // when finish drawing wall
@@ -156,6 +139,26 @@ module display_all
     counter_8_bits p(.k(k), .clear_b(clear_b), .clock(clock), .Enable(Enable));
 		
     
+endmodule
+
+
+module counter_2bits(s, clear_b, clock, Enable);
+
+
+	output reg [1:0] s; // declare q
+	input clear_b, clock, Enable;
+	
+	always @(posedge clock, negedge clear_b) // triggered every time clock rises
+		begin
+		if (clear_b == 1'b0) // when Clear_b is 0...
+			s <= 0; // set s to 0
+		else if (s == 6'b111111) // ...otherwise if s is the maximum counter value
+			s <= 2'b0; // reset s to 0
+		else if (Enable == 1'b1) // ...otherwise update s (only when Enable is 1)
+			s <= s + 1'b1; // increment s
+			// s <= s - 1'b1; // alternatively, decrement s 
+	end
+	
 endmodule
 
 module counter(q, clear_b, clock, Enable);
