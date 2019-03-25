@@ -9,10 +9,10 @@ module top_level_module
         VGA_SYNC_N,
         VGA_R,
         VGA_G,
-        VGA_B,                     //
+        VGA_B,                    
     );
-    input            CLOCK_50;                //    50 MHz
-    input   [3:0]   KEY;               // for start and reset
+    input            CLOCK_50;               
+    input   [3:0]   KEY;            // key0 is reset
 
     output            VGA_CLK;                   //    VGA Clock
     output            VGA_HS;                    //    VGA H_SYNC
@@ -24,21 +24,25 @@ module top_level_module
     output    [9:0]    VGA_B;                   //    VGA Blue[9:0]
 
 
-    wire instruction;
+    wire reg [7:0] instruction; //keyboard -> control
 
     wire reg [7:0]updated_pos;
     wire reg [7:0]updated_dir;
-    wire [7:0] mode;
-    wire [7:0] data;
+    wire [7:0] mode; // control -> storage
+    wire [7:0] data; // control -> storage 
     wire ld;
-
-    wire [7:0] address;
+    
+    wire [7:0] address; // storage -> display
     wire reg [0:0]has_wall;
     
+    // display -> VGA
+    reg [2:0] colour;
+    reg [7:0] x;
+    reg [7:0] y;
+    reg  writeEn;   
+
     
     //_______INSTANTIATE KEYBOARD INPUT_________
-    
-
     input i0
     (
         .instruction(instruction),
@@ -87,18 +91,26 @@ module top_level_module
         .load_out(ld), //input to storage
         .clk(CLOCK_50),
         .resetn(KEY[0]), // the input to reset the game
-        .instruction(instruction), //keyboard input
+        .instruction(instruction) //keyboard input
 
     );
-
+    
+    
+    //_______INSTANTIATE DISPLAY___________
+    display_all d0
+	(
+        clock(CLOCK_50),				
+        position(address),
+        address(updated_pos),
+        done(writeEn),
+        x(x),
+        y(y),
+        colour(colour)
+    );
     
 
-    reg [2:0] colour;
-    reg [6:0] x;
-    reg [6:0] y;
-    reg  writeEn;   
-
-    // INSTANTIATE DISPLAY
+    
+    // INSTANTIATE VGA
     vga_adapter VGA(
             .resetn(resetn),
             .clock(CLOCK_50),
