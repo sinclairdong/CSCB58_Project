@@ -107,44 +107,176 @@ module storage(
         // update position of corresponding tank or projectile
         // along with pointers
         case(mode[3:0])
+
+            //update tank1 position and direction
             4'b0001: begin
-                //update tank1 position and direction
+                
                 target_address <= tank_1;
                 target_direction <= tank_1_dir;
 
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
+
+                mode <= b'0000; // end loop
                 end
 
+             // fire tank1 projecile
             4'b0011: begin
-                // fire tank1 projecile
-
+               
                 case(tank_1_dir[7:0])
-                    // tank direction up
+
+                    // _________tank fire direction UP__________
                     8'b00000000: begin
                         //access RAM in read mode
                         wren <= 4'b0000;
 
-                        // collision with wall or tank2
-                        if (ram_out[5:5] == 1'b1 || ram_out[7:7])
+                        // collision with tank2
+                        if (ram_out[5:5] == 1'b1)
 
-                        else
+                            //TODO: implement gameover logic   <----------------------------------------------------
 
-                            tank_1_dir -= 8'b00001000;
-                            address <= tank_1_dir;
+                        // no wall detected
+                        else if (ram_out[7:7] == 1'b0)
+
+                            // update information for RAM
+                            tank_1_proj -= 8'b00001000;
+                            address <= tank_1_proj_dir;
                             has_proj <= 1'b1;
+
+                            // write to RAM
                             wren <= 4'b1111;
 
+                            //loop
+                            mode <= 4'b0011;
+                            has_proj <= 1'b0;
 
-                
+                        // collision with wall
+                        else if (ram_out[7:7] == 1'b1)
+
+                            //reset projectile psosition
+                            tank_1_proj <= tank_1;
+                            mode <= 4'b0000;
+                        
+                        end
+
+                    
+                    // _______tank fire direction DOWN_________
+                    8'b00000001: begin
+                        //access RAM in read mode
+                        wren <= 4'b0000;
+
+                        // collision with tank2
+                        if (ram_out[5:5] == 1'b1)
+
+                            //TODO: implement gameover logic   <----------------------------------------------------
+
+                        // no wall detected
+                        else if (ram_out[7:7] == 1'b0)
+
+                            // update information for RAM
+                            tank_1_proj += 8'b00001000;
+                            address <= tank_1_proj_dir;
+                            has_proj <= 1'b1;
+
+                            // write to RAM
+                            wren <= 4'b1111;
+
+                            //loop
+                            mode <= 4'b0011;
+                            has_proj <= 1'b0;
+
+                        // collision with wall
+                        else if (ram_out[7:7] == 1'b1)
+
+                            //reset projectile psosition
+                            tank_1_proj <= tank_1;
+                            mode <= 4'b0000;
+                        
+                        end
+
+
+                     // _______tank fire direction LEFT_________
+                    8'b00000010: begin
+                        //access RAM in read mode
+                        wren <= 4'b0000;
+
+                        // collision with tank2
+                        if (ram_out[5:5] == 1'b1)
+
+                            //TODO: implement gameover logic   <----------------------------------------------------
+
+                        // no wall detected
+                        else if (ram_out[7:7] == 1'b0)
+
+                            // update information for RAM
+                            tank_1_proj -= 8'b00000001;
+                            address <= tank_1_proj_dir;
+                            has_proj <= 1'b1;
+
+                            // write to RAM
+                            wren <= 4'b1111;
+
+                            //loop
+                            mode <= 4'b0011;
+                            has_proj <= 1'b0;
+
+                        // collision with wall
+                        else if (ram_out[7:7] == 1'b1)
+
+                            //reset projectile psosition
+                            tank_1_proj <= tank_1;
+                            mode <= 4'b0000;
+                        
+                        end
+
+
+                     // _______tank fire direction RIGHT_________
+                    8'b00000011: begin
+                        //access RAM in read mode
+                        wren <= 4'b0000;
+
+                        // collision with tank2
+                        if (ram_out[5:5] == 1'b1)
+
+                            //TODO: implement gameover logic   <----------------------------------------------------
+
+                        // no wall detected
+                        else if (ram_out[7:7] == 1'b0)
+
+                            // update information for RAM
+                            tank_1_proj += 8'b00000001;
+                            address <= tank_1_proj_dir;
+                            has_proj <= 1'b1;
+
+                            // write to RAM
+                            wren <= 4'b1111;
+
+                            //loop
+                            mode <= 4'b0011;
+                            has_proj <= 1'b0;
+
+                        // collision with wall
+                        else if (ram_out[7:7] == 1'b1)
+
+                            //reset projectile psosition
+                            tank_1_proj <= tank_1;
+                            mode <= 4'b0000;
+                        
+                        end
+                    
+                    endcase
                 end
+
+            //update tank2 position and direction
             4'b0101: begin
-                //update tank2 position and direction
+                
                 target_address <= tank_2;
                 target_direction <= tank_2_dir;
 
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
+
+                mode <= 4'b0000;
             end
 
             4'b0111: begin
