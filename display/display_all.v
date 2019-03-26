@@ -23,7 +23,7 @@ module display_all
 	// access the data from storage to read
 	// Create the colour and writeEn wires that are inputs to the controller.
 	output reg [2:0] colour;
-	wire [3:0] row, col;
+//	wire [3:0] row, col;
 	wire writeEn;
 	 
 	// Tank Address is 8 bits binary; first 4 bits the column, last 4 bits the row.
@@ -37,9 +37,9 @@ module display_all
 		//always @(address)
 	//begin
 		// x times 16 (2^4)
-	assign start_x = (address[3:0] << 4);
+//	assign start_x = (address[3:0] << 4);
 		// y times 12 (2^4-2^2)
-	assign start_y = (address[7:4] << 4) - (address[7:4] << 2);
+//	assign start_y = (address[7:4] << 4) - (address[7:4] << 2);
 		//assign clear_b = 1'b1;
 	//end
 	
@@ -48,9 +48,8 @@ module display_all
 	wire [3:0] start_x, start_y;
 	// wire gun_x, gun_y;
 	// shift 4 to the left by timing 2^4,
-//	assign start_x = (col << 4) + 3 - col;
-//	assign start_y = (row << 4) + 4 - row;
-
+	assign start_x = (address[3:0] << 4);
+	assign start_y = (address[7:4] << 4);
 	
 	wire clear_b;
 	wire Enable;
@@ -136,7 +135,7 @@ module display_all
 	
 
 	counter c(.q(q), .clear_b(clear_b), .clock(clock), .Enable(Enable));
-    counter_8_bits p(.k(k), .clear_b(clear_b), .clock(clock), .Enable(Enable));
+    counter_8bits p(.k(k), .clear_b(clear_b), .clock(clock), .Enable(Enable));
 		
     
 endmodule
@@ -180,7 +179,7 @@ module counter(q, clear_b, clock, Enable);
 	
 endmodule
 
-module counter_8_bits(k, clear_b, clock, Enable);
+module counter_8bits(k, clear_b, clock, Enable);
 
 
 	output reg [7:0] k; // declare k
