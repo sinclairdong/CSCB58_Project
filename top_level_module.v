@@ -1,5 +1,5 @@
 
-module top_level_module
+module CSCB58_PROJECT
     (
         CLOCK_50,                       
         KEY,
@@ -29,26 +29,26 @@ PS2_KBCLK
     output    [9:0]    VGA_B;                   //    VGA Blue[9:0]
 
 
-    reg [7:0] instruction; //keyboard -> control
+    wire [7:0] instruction; //keyboard -> control
 
-    reg [7:0]updated_pos;
-    reg [7:0]updated_dir;
+    wire [7:0]updated_pos;
+    wire [7:0]updated_dir;
     wire [7:0] mode; // control -> storage
     wire [7:0] data; // control -> storage 
-    wire ld;
+    wire [0:0]ld;
     
-    reg [7:0] address; // storage -> display    assign address = 8'b00100000;
-    reg [0:0]has_wall;
+    wire [7:0] address; // storage -> display    assign address = 8'b00100000;
+    wire [0:0]has_wall;
     
     // display -> VGA
-    reg [2:0] colour;
-    reg [7:0] x;
-    reg [7:0] y;
-    reg  writeEn;   
+    wire [2:0] colour;
+    wire [7:0] x;
+    wire [7:0] y;
+    wire  writeEn;   
 
     
     //_______INSTANTIATE KEYBOARD INPUT_________
-    input_module i0
+    input_kb i0
     (
         .instruction(instruction),
         .clk(CLOCK_50),
@@ -94,7 +94,7 @@ PS2_KBCLK
     control c0(
         .mode(mode), // input to storage
         .tank_move_dir(data), //input to storage
-        .load_out(ld), //input to storage
+        .loadout(ld), //input to storage
         .clk(CLOCK_50),
         .resetn(KEY[0]), // the input to reset the game
         .instruction(instruction) //keyboard input
