@@ -1,3 +1,4 @@
+
 module top_level_module
     (
         CLOCK_50,                       
@@ -9,8 +10,12 @@ module top_level_module
         VGA_SYNC_N,
         VGA_R,
         VGA_G,
-        VGA_B,                    
+        VGA_B,
+PS2_KBDAT,
+PS2_KBCLK		  
     );
+		input PS2_KBDAT;
+		input PS2_KBCLK;
     input            CLOCK_50;               
     input   [3:0]   KEY;            // key0 is reset
 
@@ -24,16 +29,16 @@ module top_level_module
     output    [9:0]    VGA_B;                   //    VGA Blue[9:0]
 
 
-    wire reg [7:0] instruction; //keyboard -> control
+    reg [7:0] instruction; //keyboard -> control
 
-    wire reg [7:0]updated_pos;
-    wire reg [7:0]updated_dir;
+    reg [7:0]updated_pos;
+    reg [7:0]updated_dir;
     wire [7:0] mode; // control -> storage
     wire [7:0] data; // control -> storage 
     wire ld;
     
-    wire [7:0] address; // storage -> display
-    wire reg [0:0]has_wall;
+    reg [7:0] address; // storage -> display    assign address = 8'b00100000;
+    reg [0:0]has_wall;
     
     // display -> VGA
     reg [2:0] colour;
@@ -43,12 +48,12 @@ module top_level_module
 
     
     //_______INSTANTIATE KEYBOARD INPUT_________
-    input i0
+    input_module i0
     (
         .instruction(instruction),
         .clk(CLOCK_50),
-        .kbclk, //?
-        .kbdat, //?
+        .kbclk(PS2_KBCLK), //?
+        .kbdat(PS2_KBDAT), //?
         .reset(KEY[0])
     );
      
@@ -63,25 +68,26 @@ module top_level_module
         .mode(mode),
         .load_out(ld),
         .address(address),
-        .data(data) // tank movement direction
+        .data(data), // tank movement direction
         .has_wall(has_wall)
     );
     
 
     // TEST - plot column of wall at y = 2
 
-    assign address = b8'00100000;
+	 /*
+    assign address = 8'b00100000;
     initial 
         begin 
         while( address < 00101111 ) 
             begin 
-                has_wall = b1'1;
-                address <= address + b8'00000001;
+                has_wall = 1'b1;
+                address <= address + 8'b00000001;
                 //allow storage to make changes
-                ld <= b1'1;
+                ld <= 1'b1;
             end 
         end 
-            
+            */
     
     //_________INSTANTIATE CONTROL_______________
     
@@ -99,13 +105,13 @@ module top_level_module
     //_______INSTANTIATE DISPLAY___________
     display_all d0
 	(
-        clock(CLOCK_50),				
-        position(address),
-        address(updated_pos),
-        done(writeEn),
-        x(x),
-        y(y),
-        colour(colour)
+        .clock(CLOCK_50),				
+        .position(address),
+        .address(updated_pos),
+        .done(writeEn),
+        .x(x),
+        .y(y),
+        .colour(colour)
     );
     
 
@@ -134,3 +140,4 @@ module top_level_module
     defparam VGA.BACKGROUND_IMAGE = "black.mif";
     
     
+endmodule
