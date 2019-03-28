@@ -119,7 +119,7 @@ module storage(
 
                 mode <= b'0000; // end loop
                 end
-
+/*
              // _________fire tank1 projecile_________
             4'b0011: begin
                
@@ -266,6 +266,7 @@ module storage(
                     
                     endcase
                 end
+		*/
 
             //______update tank2 position and direction_____
             4'b0101: begin
@@ -278,7 +279,7 @@ module storage(
 
                 mode <= 4'b0000;
             end
-
+/*
 
             //____________fire tank2 projectile_________
             4'b0111: begin
@@ -427,6 +428,7 @@ module storage(
                     endcase
                 
             end
+	    */
 			endcase
     end
 
