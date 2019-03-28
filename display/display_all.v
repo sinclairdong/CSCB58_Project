@@ -34,32 +34,25 @@ module display_all
 * read ram: 0000 for display
 * edit ram: 1111
 */
-		//always @(address)
-	//begin
-		// x times 16 (2^4)
-//	assign start_x = (address[3:0] << 4);
-		// y times 12 (2^4-2^2)
-//	assign start_y = (address[7:4] << 4) - (address[7:4] << 2);
-		//assign clear_b = 1'b1;
-	//end
+	always @(posedge clock)
+	begin
+		 if (clock == 1'b1)
+		 	start_x <= (address[3:0] << 4);
+			start_y <= (address[7:4] << 4);
+	end
 	
-	//assign col_out = col;
-	
+	/*
 	wire [3:0] start_x, start_y;
 	// wire gun_x, gun_y;
 	// shift 4 to the left by timing 2^4,
 	assign start_x = (address[3:0] << 4);
 	assign start_y = (address[7:4] << 4);
+	*/
+	
+	reg [3:0] start_x, start_y;
 	
 	wire clear_b;
 	wire Enable;
-	/*
-	always @(address)
-	begin
-		clear_b <= 1'b0;
-		Enable <= 1'b1;
-	end
-	*/
 	assign Enable = 1'b1;
 	assign clear_b = 1'b1;
 
@@ -73,18 +66,26 @@ module display_all
 	// if it is tank1 or tank2
 		if (position ==8'b01000000 || position == 8'b00100000)
 		begin
-        // assign the starting position of x, y
-//  start_x <= ;
-//  start_y <= ;
+
 		 // when it finish drawing
-			if (q == 6'd63)
+			if (q == 6'd61)
 				done <= 1'b1;
+			// start drawing gun
+			else if (q > 6'd55)
+			begin
+				// assign a color for gun
+				colour <= 3'b011;
+				// draw the gun from (x+7,y+7) to (x+2,y+7)
+				// x <= gun_x +q[2:0];
+				x <= start_x + + 3 + q[2:0];
+				y <= start_y + 5 ;
+			end
 			else
 			// draw the tank
 			begin
             // assign a color for the tank
 				colour <= 3'b101;
-            // start drawing from (x+4,y+2) to (x+11, y+9)
+            // start drawing from (x+4,y+2) to (x+11, y+8)
 				x <= start_x + q[2:0];
 				y <= start_y + q[5:3];
 				done <= 1'b0;
