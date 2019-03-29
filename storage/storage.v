@@ -37,7 +37,7 @@
 module storage(
     output reg [7:0] updated_pos,
     output reg [7:0] updated_dir,
-    outptu reg [7:0] ram_out,
+    output reg [7:0] ram_out,
     input clk,
     input reset,
     input [3:0] mode,
@@ -117,7 +117,7 @@ module storage(
                 target_address <= tank_1_proj;
                 target_direction <= tank_1_proj_dir;
 
-                mode <= b'0000; // end loop
+                //mode <= b'0000; // end loop
                 end
 /*
              // _________fire tank1 projecile_________
@@ -277,7 +277,7 @@ module storage(
                 target_address <= tank_2_proj;
                 target_direction <= tank_2_proj_dir;
 
-                mode <= 4'b0000;
+                //mode <= 4'b0000;
             end
 /*
 
@@ -510,7 +510,7 @@ module storage(
                    updated_dir <= data[7:0];
 					end
             end
-            load_out <= b1'0;
+           // load_out <= b1'0;
         end
     end
 endmodule
