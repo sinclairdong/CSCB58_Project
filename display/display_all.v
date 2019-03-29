@@ -68,17 +68,17 @@ module display_all
 		begin
 
 		 // when it finish drawing
-			if (q == 6'd61)
+			if (q == 6'd63)
 				done <= 1'b1;
 			// start drawing gun
 			else if (q > 6'd55)
 			begin
 				// assign a color for gun
 				colour <= 3'b011;
-				// draw the gun from (x+7,y+7) to (x+2,y+7)
+				// draw the gun from (x+7,y+7) to (x+12,y+7)
 				// x <= gun_x +q[2:0];
-				x <= start_x + + 3 + q[2:0];
-				y <= start_y + 5 ;
+				x <= start_x + 7 + q[2:0];
+				y <= start_y + 7 ;
 			end
 			else
 			// draw the tank
@@ -86,8 +86,8 @@ module display_all
             // assign a color for the tank
 				colour <= 3'b101;
             // start drawing from (x+4,y+2) to (x+11, y+8)
-				x <= start_x + q[2:0];
-				y <= start_y + q[5:3];
+				x <= start_x + 4 + q[2:0];
+				y <= start_y + 2 + q[5:3];
 				done <= 1'b0;
 			end
 		end
