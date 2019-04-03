@@ -97,12 +97,19 @@ WEEK 2：
 	-projectile and collision
 	-putting everything together in top level
 
+WEEK3:
+
+-intergrate all 4 different module together but run into some major problem
+	- race condition display and control try to read and modify ram at the same time
+	- clock edge counts
+
+-at the end we manage to get some part of our code to intergrate together and if more time is allowed it will works better.
+
+-all 4 module works independently
+
 
 References
 ----------
-<In this space clearly indicate all external sources used in this project. If you used anyone else's code (from previous B58 projects or other sources) clearly indicate what you used and where you found it. Usage of any material not credited in this space will be considered plagiarism. It is absolutely OK and expected to update this section as you progress in the projected.
-
-Make sure to document what you added on top of the existing work, especially if you work with a previous project. What is it that YOU added?>
 
 	The game we are (re)creating can be found: https://oldgameshelf.com/battle-city-98.html
 
@@ -113,4 +120,4 @@ https://github.com/sinclairdong/CSCB58_Project
 NOTE: the github repo is currently private as school policy against publishing un submitted assignment
 NOTE: Will be public if instrctor gives permission
 
-Video will be uploaded latter
+Video: https://youtu.be/hC0LlWqhAG8
